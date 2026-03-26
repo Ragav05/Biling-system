@@ -1,0 +1,2 @@
+"""POS-style billing helpers."""
+

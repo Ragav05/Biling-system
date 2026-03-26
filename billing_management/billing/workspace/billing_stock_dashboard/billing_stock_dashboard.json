@@ -1,0 +1,31 @@
+{
+ "charts": [],
+ "content": "[{\"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Billing Stock Cards\", \"col\": 12}}]",
+ "creation": "2026-03-26 15:47:42.893154",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Billing Stock Cards",
+   "label": "Billing Stock Cards"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Billing Stock Dashboard",
+ "links": [],
+ "modified": "2026-03-26 16:46:59.822723",
+ "modified_by": "Administrator",
+ "module": "Billing",
+ "name": "Billing Stock Dashboard",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 0.0,
+ "shortcuts": [],
+ "title": "Billing Stock Dashboard"
+}

@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:item_code",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "label": "Item Code",
+   "in_list_view": 1,
+   "reqd": 1,
+   "unique": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "in_list_view": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_stock_item",
+   "fieldtype": "Check",
+   "label": "Maintain Stock"
+  },
+  {
+   "depends_on": "eval:doc.is_stock_item",
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse",
+   "mandatory_depends_on": "eval:doc.is_stock_item"
+  },
+  {
+   "depends_on": "eval:doc.is_stock_item",
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "options": "UOM",
+   "mandatory_depends_on": "eval:doc.is_stock_item"
+  },
+  {
+   "default": "0",
+   "fieldname": "reorder_level",
+   "fieldtype": "Float",
+   "label": "Reorder Level (Low Stock Threshold)"
+  },
+  {
+   "default": "0",
+   "fieldname": "default_rate",
+   "fieldtype": "Float",
+   "label": "Default Rate"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  }
+ ],
+ "icon": "fa fa-cubes",
+ "module": "Billing",
+ "name": "Billing Item",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "item_code,item_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "title_field": "item_name"
+}
+

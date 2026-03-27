@@ -25,6 +25,8 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 			<div class="billing-pos-toolbar">
 				<input class="form-control billing-pos-search" placeholder="Search items..." />
 				<button class="btn btn-default btn-sm billing-pos-refresh">Refresh</button>
+				<button class="btn btn-default btn-sm billing-pos-add-stock">Add Stock</button>
+				<button class="btn btn-default btn-sm billing-pos-add-item">Add Item</button>
 			</div>
 			<div class="billing-pos-items" style="overflow:auto; max-height: 70vh;"></div>
 		</div>
@@ -40,7 +42,7 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 				<div class="row">
 					<div class="col-6">
 						<label class="text-muted small">Subtotal</label>
-						<div class="billing-pos-subtotal h4 m-0">0</div>
+						<div class="billing-pos-subtotal h4 m-0 billing-pos-total-value">0</div>
 					</div>
 					<div class="col-6 text-right">
 						<label class="text-muted small">Discount (%)</label>
@@ -50,12 +52,12 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 
 				<div class="mt-2">
 					<label class="text-muted small">Discount Amount</label>
-					<div class="billing-pos-discount-amount h5 m-0">0</div>
+					<div class="billing-pos-discount-amount h5 m-0 billing-pos-discount-value">0</div>
 				</div>
 
 				<div class="mt-2">
 					<label class="text-muted small">Total</label>
-					<div class="billing-pos-grand-total h4 m-0">0</div>
+					<div class="billing-pos-grand-total h4 m-0 billing-pos-grand-value">0</div>
 				</div>
 
 				<div class="mt-3">
@@ -69,24 +71,132 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 
 	// Minimal styling
 	const style = `
-		.billing-pos-root{display:flex;gap:16px;align-items:stretch;}
-		.billing-pos-left{flex: 1 1 45%; border:1px solid #e6e6e6; border-radius:8px; padding:12px;}
-		.billing-pos-right{flex: 1 1 55%; border:1px solid #e6e6e6; border-radius:8px; padding:12px;}
-		.billing-pos-toolbar{display:flex; gap:8px; margin-bottom:10px;}
+		.billing-pos-root{
+			display:flex;
+			gap:16px;
+			align-items:stretch;
+			background: linear-gradient(180deg, #f8fbff 0%, #f5f7fa 100%);
+			padding: 10px;
+			border-radius: 12px;
+		}
+		.billing-pos-left,.billing-pos-right{
+			border:1px solid #e6edf5;
+			border-radius:12px;
+			padding:14px;
+			background: #ffffff;
+			box-shadow: 0 8px 20px rgba(26, 56, 97, 0.06);
+		}
+		.billing-pos-left{flex: 1 1 45%;}
+		.billing-pos-right{flex: 1 1 55%;}
+		.billing-pos-toolbar{display:flex; gap:8px; margin-bottom:12px;}
+		.billing-pos-search{
+			border-radius: 10px !important;
+			border-color: #dbe4f0 !important;
+			height: 36px;
+		}
+		.billing-pos-refresh{
+			border-radius: 10px !important;
+			border: 1px solid #dbe4f0 !important;
+			background: #f7faff !important;
+			color: #23527c !important;
+		}
+		.billing-pos-add-stock{
+			border-radius: 10px !important;
+			border: 1px solid #d5e9d9 !important;
+			background: #f2fbf5 !important;
+			color: #0f5132 !important;
+		}
+		.billing-pos-add-item{
+			border-radius: 10px !important;
+			border: 1px solid #dbe4f0 !important;
+			background: #ffffff !important;
+			color: #1e4f8f !important;
+		}
 		.billing-pos-items{display:flex; flex-direction:column; gap:8px;}
-		.billing-pos-cart-header{margin-bottom:10px;}
-		.billing-pos-item{display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; border-radius:8px; cursor:pointer;}
-		.billing-pos-item:hover{background:#fafafa;}
+		.billing-pos-cart-header{
+			margin-bottom:12px;
+			font-size: 16px;
+			font-weight: 700;
+			color: #23364d;
+		}
+		.billing-pos-item{
+			display:flex; justify-content:space-between; align-items:center;
+			padding:12px;
+			border:1px solid #e7edf4;
+			border-radius:10px;
+			cursor:pointer;
+			background: #fff;
+			transition: all .18s ease;
+		}
+		.billing-pos-item:hover{
+			border-color:#cfe1ff;
+			background:#f8fbff;
+			transform: translateY(-1px);
+		}
 		.billing-pos-item .name{font-weight:600;}
 		.billing-pos-item .meta{font-size:12px; color:#6c757d;}
+		.billing-pos-badge-out{
+			display:inline-block;
+			padding:2px 8px;
+			border-radius:999px;
+			background:#ffe8e8;
+			color:#b42318;
+			font-size:11px;
+			font-weight:600;
+		}
+		.billing-pos-inline-stock{
+			margin-left: 6px;
+			padding: 1px 8px;
+			border-radius:999px;
+			border:1px solid #f2c1c1;
+			background:#fff5f5;
+			color:#9d174d;
+			font-size:11px;
+			font-weight:600;
+			cursor:pointer;
+		}
+		.billing-pos-inline-stock:hover{
+			background:#ffe9e9;
+		}
 		.billing-pos-item.out{opacity:0.55; cursor:not-allowed;}
-		.billing-pos-row{display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border:1px solid #eee; border-radius:8px; align-items:center; margin-bottom:8px;}
+		.billing-pos-row{
+			display:flex; justify-content:space-between; gap:8px;
+			padding:10px 12px;
+			border:1px solid #e7edf4;
+			border-radius:10px;
+			align-items:center;
+			margin-bottom:8px;
+			background: #fff;
+		}
 		.billing-pos-row .left{display:flex; flex-direction:column; min-width: 160px;}
 		.billing-pos-row .left .name{font-weight:600;}
 		.billing-pos-row .qty{display:flex; align-items:center; gap:6px;}
 		.billing-pos-row input.qty-input{width:80px;}
 		.billing-pos-row .amount{font-weight:600;}
-		.billing-pos-summary{border-top: 1px solid #f0f0f0; padding-top:12px;}
+		.billing-pos-summary{
+			border-top: 1px solid #edf2f8;
+			padding-top:14px;
+			background: #fcfdff;
+			border-radius: 10px;
+		}
+		.billing-pos-total-value{color:#1e4f8f;}
+		.billing-pos-discount-value{color:#c75b00;}
+		.billing-pos-grand-value{
+			color:#0f5132;
+			font-size: 28px;
+			font-weight: 700;
+		}
+		.billing-pos-checkout{
+			border-radius: 10px !important;
+			border: none !important;
+			background: linear-gradient(135deg, #1f7ae0 0%, #0f5ec5 100%) !important;
+			font-weight: 600;
+			letter-spacing: .2px;
+			height: 38px;
+		}
+		.billing-pos-checkout:hover{
+			filter: brightness(1.04);
+		}
 	`;
 	if (!document.getElementById("billing-pos-style")) {
 		const styleEl = document.createElement("style");
@@ -103,8 +213,20 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 	const $discountAmountEl = $wrapper.find(".billing-pos-discount-amount");
 	const $grandTotalEl = $wrapper.find(".billing-pos-grand-total");
 	const $checkoutBtn = $wrapper.find(".billing-pos-checkout");
+	const $addStockBtn = $wrapper.find(".billing-pos-add-stock");
+	const $addItemBtn = $wrapper.find(".billing-pos-add-item");
 
 	const floatPrecision = cint(frappe?.boot?.sysdefaults?.float_precision ?? 0);
+	const currencyCode =
+		(frappe.defaults && frappe.defaults.get_default && frappe.defaults.get_default("currency")) || "INR";
+
+	function formatMoney(value) {
+		const amount = flt(value, floatPrecision);
+		if (typeof format_currency === "function") {
+			return format_currency(amount, currencyCode);
+		}
+		return `₹ ${amount}`;
+	}
 
 	function calculateTotals() {
 		const cartRows = pos.cart_order.map((code) => pos.cart[code]).filter(Boolean);
@@ -117,9 +239,9 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 
 	function renderTotals() {
 		const t = calculateTotals();
-		$subtotalEl.text(flt(t.subtotal, floatPrecision));
-		$discountAmountEl.text(flt(t.discount_amount, floatPrecision));
-		$grandTotalEl.text(flt(t.grand_total, floatPrecision));
+		$subtotalEl.text(formatMoney(t.subtotal));
+		$discountAmountEl.text(formatMoney(t.discount_amount));
+		$grandTotalEl.text(formatMoney(t.grand_total));
 	}
 
 	function renderCart() {
@@ -152,7 +274,7 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 						<button class="btn btn-default btn-sm billing-pos-qty-plus" ${canIncrease ? "" : "disabled"}>+</button>
 					</div>
 					<div class="right" style="display:flex; flex-direction:column; align-items:flex-end;">
-						<div class="amount">${flt(row.qty * row.rate)}</div>
+						<div class="amount">${formatMoney(row.qty * row.rate)}</div>
 						<button class="btn btn-link text-danger p-0 billing-pos-remove">Remove</button>
 					</div>
 				</div>
@@ -227,18 +349,26 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 
 		pos.items.forEach((item) => {
 			const isOut = flt(item.available_qty) <= 0;
+			const stockMeta = isOut
+				? `<span class="billing-pos-badge-out">${__("Out of Stock")}</span><button class="billing-pos-inline-stock" data-item-code="${frappe.utils.escape_html(item.item_code)}">${__("+ Stock")}</button>`
+				: `${__("Available")}: ${flt(item.available_qty)}`;
 			const $item = $(`
 				<div class="billing-pos-item ${isOut ? "out" : ""}">
 					<div>
 						<div class="name">${frappe.utils.escape_html(item.item_name)}</div>
-						<div class="meta">${isOut ? __("Out of Stock") : __("Available")}: ${flt(item.available_qty)}</div>
+						<div class="meta">${stockMeta}</div>
 					</div>
 					<div style="text-align:right;">
-						<div class="name">${flt(item.rate)}</div>
+						<div class="name">${formatMoney(item.rate)}</div>
 						<div class="meta">${__("Rate")}</div>
 					</div>
 				</div>
 			`);
+			$item.find(".billing-pos-inline-stock").on("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				openAddStockDialog(item.item_code);
+			});
 			$item.on("click", () => !isOut && addToCart(item));
 			$itemsEl.append($item);
 		});
@@ -271,11 +401,23 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 					fieldtype: "HTML",
 					fieldname: "totals_html",
 					options: `
-						<div class="mb-2">
-							<div><span class="text-muted">${__("Subtotal")}</span>: <b>${flt(t.subtotal, floatPrecision)}</b></div>
-							<div><span class="text-muted">${__("Discount")}</span>: <b>${flt(pos.discount_percentage)}%</b></div>
-							<div><span class="text-muted">${__("Discount Amount")}</span>: <b>${flt(t.discount_amount, floatPrecision)}</b></div>
-							<div class="mt-1"><span>${__("Total")}</span>: <b style="font-size:18px;">${flt(t.grand_total, floatPrecision)}</b></div>
+						<div class="billing-payment-summary">
+							<div class="billing-payment-row">
+								<span>${__("Subtotal")}</span>
+								<b>${formatMoney(t.subtotal)}</b>
+							</div>
+							<div class="billing-payment-row">
+								<span>${__("Discount")}</span>
+								<b>${flt(pos.discount_percentage)}%</b>
+							</div>
+							<div class="billing-payment-row">
+								<span>${__("Discount Amount")}</span>
+								<b class="billing-payment-discount">-${formatMoney(t.discount_amount)}</b>
+							</div>
+							<div class="billing-payment-total">
+								<span>${__("Payable Total")}</span>
+								<b>${formatMoney(t.grand_total)}</b>
+							</div>
 						</div>
 					`,
 				},
@@ -291,7 +433,7 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 					fieldtype: "Float",
 					fieldname: "payment_amount",
 					label: __("Amount"),
-					default: flt(t.grand_total, floatPrecision),
+					default: Number(flt(t.grand_total, floatPrecision).toFixed(floatPrecision)),
 					reqd: 1,
 				},
 			],
@@ -325,7 +467,14 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 						if (r && !r.exc) {
 							const invoice_name = r.message.invoice_name;
 							dialog.hide();
-							frappe.show_alert({ message: __("Invoice {0} created", [invoice_name]), indicator: "green" });
+							const paidTotal = formatMoney(r.message.grand_total);
+							frappe.show_alert(
+								{
+									message: __("Invoice {0} created • Paid: {1}", [invoice_name, paidTotal]),
+									indicator: "green",
+								},
+								7
+							);
 							pos.cart = {};
 							pos.cart_order = [];
 							pos.discount_percentage = 0;
@@ -339,6 +488,102 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 		});
 
 		dialog.show();
+		// Modal-only style polish for payment popup.
+		const paymentStyleId = "billing-payment-modal-style";
+		if (!document.getElementById(paymentStyleId)) {
+			const styleEl = document.createElement("style");
+			styleEl.id = paymentStyleId;
+			styleEl.innerHTML = `
+				.billing-payment-summary{
+					background:#f8fbff;
+					border:1px solid #e5edf7;
+					border-radius:10px;
+					padding:10px 12px;
+					margin-bottom:2px;
+				}
+				.billing-payment-row{
+					display:flex;
+					justify-content:space-between;
+					align-items:center;
+					margin:2px 0;
+					color:#364152;
+				}
+				.billing-payment-discount{color:#b54708;}
+				.billing-payment-total{
+					margin-top:8px;
+					padding-top:8px;
+					border-top:1px dashed #d5e2f2;
+					display:flex;
+					justify-content:space-between;
+					align-items:center;
+					font-size:15px;
+				}
+				.billing-payment-total b{
+					font-size:20px;
+					color:#0f5132;
+				}
+			`;
+			document.head.appendChild(styleEl);
+		}
+	}
+
+	function openAddStockDialog(prefillItemCode) {
+		const dialog = new frappe.ui.Dialog({
+			title: __("Add Stock"),
+			fields: [
+				{
+					fieldtype: "Link",
+					fieldname: "item_code",
+					label: __("Item"),
+					options: "Billing Item",
+					reqd: 1,
+				},
+				{
+					fieldtype: "Float",
+					fieldname: "qty",
+					label: __("Quantity"),
+					default: 1,
+					reqd: 1,
+				},
+			],
+			primary_action_label: __("Add Stock"),
+			primary_action(values) {
+				const qty = flt(values.qty);
+				if (qty <= 0) {
+					frappe.msgprint(__("Quantity must be greater than 0"));
+					return;
+				}
+				dialog.disable_primary_action();
+				frappe.call({
+					method: "billing_management.billing.pos.billing_pos.add_stock_for_item",
+					args: {
+						item_code: values.item_code,
+						qty: qty,
+					},
+					freeze: true,
+					freeze_message: __("Updating stock..."),
+					callback: function (r) {
+						if (r && !r.exc) {
+							dialog.hide();
+							const msg = r.message || {};
+							frappe.show_alert(
+								{
+									message: __("Stock added: {0} (+{1})", [msg.item_code, msg.qty_added]),
+									indicator: "green",
+								},
+								5
+							);
+							loadItems($searchEl.val());
+						}
+					},
+				});
+			},
+		});
+		dialog.show();
+		if (prefillItemCode) {
+			dialog.set_value("item_code", prefillItemCode);
+			dialog.set_value("qty", 1);
+		}
 	}
 
 	$searchEl.on(
@@ -348,6 +593,8 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 		}, 300)
 	);
 	$wrapper.find(".billing-pos-refresh").on("click", () => loadItems($searchEl.val()));
+	$addStockBtn.on("click", openAddStockDialog);
+	$addItemBtn.on("click", () => frappe.new_doc("Billing Item"));
 	$discountEl.on("input", () => {
 		let d = flt($discountEl.val()) || 0;
 		if (d < 0) d = 0;

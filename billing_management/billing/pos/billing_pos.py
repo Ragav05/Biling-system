@@ -1,15 +1,33 @@
 from __future__ import annotations
 
-import frappe
-from frappe.utils import cint, flt
+import frappe  # type: ignore
+from frappe.utils import cint, flt  # type: ignore
+
+from billing_management.billing.stock.stock_service import create_and_submit_stock_ledger_entry
+from billing_management.billing.pricing import get_effective_item_rate
 
 
 def _get_float_precision() -> int:
 	return cint(frappe.db.get_single_value("System Settings", "float_precision") or 0)
 
 
+def _coerce_items_payload(items: object) -> list[dict]:
+	"""Accept either list payload or JSON string payload from frappe.call."""
+	if isinstance(items, str):
+		items = frappe.parse_json(items)
+
+	if not isinstance(items, list):
+		frappe.throw(frappe._("Invalid cart payload. Items must be a list."))
+
+	for row in items:
+		if not isinstance(row, dict):
+			frappe.throw(frappe._("Invalid cart row payload. Each item must be an object."))
+
+	return items
+
+
 @frappe.whitelist()
-def get_pos_items(search: str | None = None, limit: int = 100) -> list[dict]:
+def get_pos_items(search: str | None = None, limit: int = 100, posting_date: str | None = None) -> list[dict]:
 	"""Return POS items with current available qty in each Billing Item's default warehouse.
 
 	Used by `public/js/billing_dashboard.js`.
@@ -57,11 +75,12 @@ def get_pos_items(search: str | None = None, limit: int = 100) -> list[dict]:
 	for i in items:
 		item_code = i["name"]
 		warehouse = i["default_warehouse"]
+		effective_rate = get_effective_item_rate(item_code, posting_date=posting_date)
 		out.append(
 			{
 				"item_code": item_code,
 				"item_name": i.get("item_name") or item_code,
-				"rate": flt(i.get("default_rate") or 0),
+				"rate": flt(effective_rate),
 				"warehouse": warehouse,
 				"available_qty": flt(qty_map.get((item_code, warehouse), 0.0)),
 			}
@@ -74,7 +93,7 @@ def get_pos_items(search: str | None = None, limit: int = 100) -> list[dict]:
 def create_invoice_with_payment(
 	*,
 	customer: str | None = None,
-	items: list[dict],
+	items: object,
 	discount_percentage: float = 0,
 	payment_method: str,
 	payment_amount: float,
@@ -91,6 +110,7 @@ def create_invoice_with_payment(
 	if payment_method not in ("Cash", "Card"):
 		frappe.throw(frappe._("Invalid payment method"))
 
+	items = _coerce_items_payload(items)
 	if not items:
 		frappe.throw(frappe._("Cart cannot be empty"))
 
@@ -132,7 +152,7 @@ def create_invoice_with_payment(
 
 		rate = row.get("rate", None)
 		if rate is None or rate == "" or flt(rate) == 0:
-			rate = item.get("default_rate") or 0
+			rate = get_effective_item_rate(item_code, posting_date=posting_date)
 
 		warehouse = item.get("default_warehouse")
 		if not warehouse:
@@ -195,5 +215,51 @@ def create_invoice_with_payment(
 		"subtotal": flt(round(subtotal, precision)),
 		"discount_amount": discount_amount,
 		"grand_total": grand_total,
+	}
+
+
+@frappe.whitelist()
+def add_stock_for_item(
+	*,
+	item_code: str,
+	qty: float,
+	warehouse: str | None = None,
+	posting_date: str | None = None,
+) -> dict:
+	"""Quick stock increase API for POS screen."""
+	if not item_code:
+		frappe.throw(frappe._("Item is required"))
+
+	qty = flt(qty)
+	if qty <= 0:
+		frappe.throw(frappe._("Quantity must be greater than 0"))
+
+	item = frappe.get_doc("Billing Item", item_code)
+	if not item.is_stock_item:
+		frappe.throw(frappe._("Item {0} is not marked as a stock item").format(item_code))
+
+	warehouse = warehouse or item.default_warehouse
+	if not warehouse:
+		frappe.throw(frappe._("Default warehouse is missing for item {0}").format(item_code))
+
+	posting_date = posting_date or frappe.utils.nowdate()
+	voucher_no = f"POS-STOCK-{frappe.generate_hash(length=8)}"
+
+	ledger_name = create_and_submit_stock_ledger_entry(
+		item=item_code,
+		warehouse=warehouse,
+		qty=qty,
+		transaction_type="In",
+		voucher_type="POS Stock Refill",
+		voucher_no=voucher_no,
+		posting_date=posting_date,
+		description=f"POS quick stock refill for {item_code}",
+	)
+
+	return {
+		"ledger_name": ledger_name,
+		"item_code": item_code,
+		"warehouse": warehouse,
+		"qty_added": qty,
 	}
 

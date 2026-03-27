@@ -7,6 +7,7 @@ from billing_management.billing.stock.stock_service import (
 	create_and_submit_stock_ledger_entry,
 	get_current_stock_qty,
 )
+from billing_management.billing.pricing import get_effective_item_rate
 
 
 class BillingInvoice(frappe.model.document.Document):
@@ -51,10 +52,10 @@ class BillingInvoice(frappe.model.document.Document):
 			row.stock_uom = item.stock_uom
 			row.warehouse = warehouse
 
-			# Auto-fill rate from Billing Item if not provided.
+			# Auto-fill rate from effective date-wise pricing if not provided.
 			# (Client scripts should do this, but backend must stay authoritative.)
-			if (row.rate is None or row.rate == "" or flt(row.rate) == 0) and item.default_rate is not None:
-				row.rate = item.default_rate
+			if row.rate is None or row.rate == "" or flt(row.rate) == 0:
+				row.rate = get_effective_item_rate(row.item_code, posting_date=str(self.posting_date))
 
 			row.rate = flt(row.rate)
 			row.amount = flt(row.qty) * flt(row.rate)

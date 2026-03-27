@@ -48,6 +48,12 @@ app_license = "mit"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+# Client scripts for custom doctypes
+doctype_js = {
+	"Billing Invoice": "public/js/doctype/billing_invoice/billing_invoice.js",
+	"Billing Invoice Item": "public/js/doctype/billing_invoice_item/billing_invoice_item.js",
+}
+
 # Svg Icons
 # ------------------
 # include app icons in desk
@@ -83,7 +89,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "billing_management.install.before_install"
-# after_install = "billing_management.install.after_install"
+after_install = "billing_management.install.after_install"
 
 # Uninstallation
 # ------------

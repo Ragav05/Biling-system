@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 billing_management.patches.v1_setup_billing_workspace
 billing_management.patches.v2_setup_billing_pos_page
+billing_management.patches.v3_refresh_billing_workspace_stock_cards

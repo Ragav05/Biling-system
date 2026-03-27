@@ -3,33 +3,41 @@ frappe.ui.form.on("Billing Invoice Item", {
 		const row = locals[cdt][cdn];
 		if (!row.item_code) return;
 
-		frappe.db
-			.get_value("Billing Item", row.item_code, [
-				"default_rate",
+		Promise.all([
+			frappe.db.get_value("Billing Item", row.item_code, [
 				"default_warehouse",
 				"stock_uom",
 				"item_name",
-			])
-			.then((r) => {
-				const data = r && r.message ? r.message : {};
-				if (data.default_rate != null && (!row.rate || flt(row.rate) === 0)) {
-					frappe.model.set_value(cdt, cdn, "rate", flt(data.default_rate) || 0);
-				}
+			]),
+			frappe.call({
+				method: "billing_management.billing.pricing.get_item_rate",
+				args: {
+					item_code: row.item_code,
+					posting_date: frm.doc.posting_date || null,
+				},
+			}),
+		]).then(([itemRes, priceRes]) => {
+			const data = itemRes && itemRes.message ? itemRes.message : {};
+			const priceData = priceRes && priceRes.message ? priceRes.message : {};
 
-				if (!row.warehouse && data.default_warehouse) {
-					frappe.model.set_value(cdt, cdn, "warehouse", data.default_warehouse);
-				}
+			if (priceData.rate != null && (!row.rate || flt(row.rate) === 0)) {
+				frappe.model.set_value(cdt, cdn, "rate", flt(priceData.rate) || 0);
+			}
 
-				if (data.stock_uom) {
-					frappe.model.set_value(cdt, cdn, "stock_uom", data.stock_uom);
-				}
+			if (!row.warehouse && data.default_warehouse) {
+				frappe.model.set_value(cdt, cdn, "warehouse", data.default_warehouse);
+			}
 
-				if (data.item_name) {
-					frappe.model.set_value(cdt, cdn, "item_name", data.item_name);
-				}
+			if (data.stock_uom) {
+				frappe.model.set_value(cdt, cdn, "stock_uom", data.stock_uom);
+			}
 
-				calculate_amount(frm, cdt, cdn);
-			});
+			if (data.item_name) {
+				frappe.model.set_value(cdt, cdn, "item_name", data.item_name);
+			}
+
+			calculate_amount(frm, cdt, cdn);
+		});
 	},
 	qty: function (frm, cdt, cdn) {
 		calculate_amount(frm, cdt, cdn);

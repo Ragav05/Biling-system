@@ -1,0 +1,36 @@
+{
+ "actions": [],
+ "creation": "2026-03-27 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "rate_date",
+  "rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "rate_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Rate Date",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "module": "Billing",
+ "name": "Billing Item Rate",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
+

@@ -1,59 +1,47 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "field:invoice_number",
+ "autoname": "naming_series:",
  "doctype": "DocType",
  "engine": "InnoDB",
  "fields": [
   {
-   "fieldname": "invoice_number",
-   "fieldtype": "Data",
-   "label": "Invoice Number",
-   "in_list_view": 1,
-   "reqd": 1,
-   "unique": 1,
-   "search_index": 1
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "POS-ORD-.YYYY.-",
+   "hidden": 1
   },
   {
-   "fieldname": "restaurant_section",
+   "fieldname": "order_details_section",
    "fieldtype": "Section Break",
-   "label": "Order Details"
-  },
-  {
-   "fieldname": "table_number",
-   "fieldtype": "Link",
-   "label": "Table Number",
-   "options": "Restaurant Table",
-   "in_list_view": 1,
-   "search_index": 1
+   "label": "Order Details",
+   "icon": "fa fa-file-text"
   },
   {
    "fieldname": "order_type",
    "fieldtype": "Select",
    "label": "Order Type",
-   "options": "\nDine-In\nTakeaway\nDelivery\nOnline Order",
-   "default": "Dine-In",
+   "options": "\nDine-In\nTakeaway",
+   "reqd": 1,
    "in_list_view": 1,
-   "search_index": 1
+   "search_index": 1,
+   "default": "Dine-In"
   },
   {
-   "depends_on": "eval:doc.order_type in ['Delivery', 'Online Order']",
-   "fieldname": "delivery_address",
-   "fieldtype": "Small Text",
-   "label": "Delivery Address"
-  },
-  {
-   "fieldname": "order_number",
-   "fieldtype": "Data",
-   "label": "Order Number",
-   "read_only": 1
-  },
-  {
-   "fieldname": "pos_order",
+   "depends_on": "eval:doc.order_type === 'Dine-In'",
+   "fieldname": "table_no",
    "fieldtype": "Link",
-   "label": "POS Order",
-   "options": "POS Order",
-   "read_only": 1
+   "label": "Table No",
+   "options": "Restaurant Table",
+   "mandatory_depends_on": "eval:doc.order_type === 'Dine-In'"
+  },
+  {
+   "fieldname": "takeaway_token",
+   "fieldtype": "Data",
+   "label": "Takeaway Token",
+   "read_only": 1,
+   "depends_on": "eval:doc.order_type === 'Takeaway'"
   },
   {
    "fieldname": "customer_section",
@@ -80,13 +68,14 @@
   {
    "fieldname": "items_section",
    "fieldtype": "Section Break",
-   "label": "Items"
+   "label": "Items",
+   "icon": "fa fa-shopping-cart"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Billing Invoice Item",
+   "options": "POS Order Item",
    "reqd": 1
   },
   {
@@ -107,21 +96,17 @@
    "read_only": 1
   },
   {
-   "fieldname": "discount_percentage",
-   "fieldtype": "Float",
-   "label": "Discount Percentage",
-   "default": 0
-  },
-  {
    "fieldname": "discount_amount",
    "fieldtype": "Float",
    "label": "Discount Amount",
-   "read_only": 1
+   "default": "0"
   },
   {
-   "fieldname": "taxes_section",
-   "fieldtype": "Section Break",
-   "label": "Taxes & Charges"
+   "fieldname": "service_charge",
+   "fieldtype": "Float",
+   "label": "Service Charge",
+   "default": "0",
+   "depends_on": "eval:doc.order_type === 'Dine-In'"
   },
   {
    "fieldname": "tax_total",
@@ -130,33 +115,79 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "service_charge",
-   "fieldtype": "Float",
-   "label": "Service Charge"
-  },
-  {
    "fieldname": "grand_total",
    "fieldtype": "Float",
    "label": "Grand Total",
    "read_only": 1
   },
   {
+   "fieldname": "kitchen_status_section",
+   "fieldtype": "Section Break",
+   "label": "Kitchen & Order Status",
+   "icon": "fa fa-clock-o"
+  },
+  {
+   "fieldname": "order_status",
+   "fieldtype": "Select",
+   "label": "Order Status",
+   "options": "\nPending\nPreparing\nReady\nServed\nPicked Up\nCancelled",
+   "default": "Pending",
+   "allow_on_submit": 1,
+   "in_list_view": 1,
+   "search_index": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "kitchen_status",
+   "fieldtype": "Select",
+   "label": "Kitchen Status",
+   "options": "\nPending\nIn Progress\nReady\nServed",
+   "default": "Pending",
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.order_type === 'Dine-In'"
+  },
+  {
    "fieldname": "payment_section",
    "fieldtype": "Section Break",
-   "label": "Payment Details"
+   "label": "Payment Details",
+   "icon": "fa fa-credit-card"
+  },
+  {
+   "fieldname": "billing_mode",
+   "fieldtype": "Select",
+   "label": "Billing Mode",
+   "options": "\nPay Now\nPay Later",
+   "default": "Pay Later"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "label": "Payment Status",
+   "options": "\nUnpaid\nPaid",
+   "allow_on_submit": 1,
+   "default": "Unpaid",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "billing_invoice",
+   "fieldtype": "Link",
+   "label": "Billing Invoice",
+   "options": "Billing Invoice",
+   "allow_on_submit": 1,
+   "read_only": 1
   },
   {
    "fieldname": "payment_method",
    "fieldtype": "Select",
    "label": "Payment Method",
-   "options": "\nCash\nCard\nUPI\nWallet\nNet Banking\nCredit",
-   "in_list_view": 1
+   "options": "\nCash\nCard\nUPI\nWallet\nNet Banking\nCredit"
   },
   {
    "fieldname": "paid_amount",
    "fieldtype": "Float",
-   "label": "Paid Amount"
+   "label": "Paid Amount",
+   "default": "0"
   },
   {
    "fieldname": "change_amount",
@@ -173,24 +204,6 @@
    "fieldname": "status_section",
    "fieldtype": "Section Break",
    "label": "Status"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Draft\nSubmitted\nPaid\nCancelled",
-   "default": "Draft",
-   "reqd": 1,
-   "in_list_view": 1,
-   "search_index": 1
-  },
-  {
-   "fieldname": "kitchen_status",
-   "fieldtype": "Select",
-   "label": "Kitchen Status",
-   "options": "\nPending\nIn Progress\nReady\nServed",
-   "default": "Pending",
-   "allow_on_submit": 1
   },
   {
    "default": "Today",
@@ -211,10 +224,10 @@
    "label": "Remarks / Notes"
   }
  ],
- "icon": "fa fa-file-invoice",
+ "icon": "fa fa-shopping-cart",
  "is_submittable": 1,
  "module": "Billing",
- "name": "Billing Invoice",
+ "name": "POS Order",
  "owner": "Administrator",
  "permissions": [
   {
@@ -242,7 +255,9 @@
    "write": 1
   }
  ],
- "search_fields": "invoice_number,customer,table_number",
+  "search_fields": "order_type,table_no,takeaway_token,order_status,billing_invoice,payment_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
  "track_changes": 1,
- "title_field": "invoice_number"
+ "title_field": "order_type"
 }

@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:station_name",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "fields": [
+  {
+   "fieldname": "station_name",
+   "fieldtype": "Data",
+   "label": "Station Name",
+   "in_list_view": 1,
+   "reqd": 1,
+   "unique": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "station_code",
+   "fieldtype": "Data",
+   "label": "Station Code",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "station_type",
+   "fieldtype": "Select",
+   "label": "Station Type",
+   "options": "\nHot Kitchen\nCold Kitchen\nBar/Beverage\nGrill\nFryer\nSalad\nDessert\nPackaging\nService Counter",
+   "in_list_view": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "print_kot",
+   "fieldtype": "Check",
+   "label": "Print KOT (Kitchen Order Ticket)"
+  },
+  {
+   "fieldname": "display_section",
+   "fieldtype": "Section Break",
+   "label": "Display Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_on_kds",
+   "fieldtype": "Check",
+   "label": "Show on Kitchen Display System"
+  },
+  {
+   "fieldname": "kds_screen_color",
+   "fieldtype": "Color",
+   "label": "KDS Screen Color",
+   "description": "Color code for KDS display"
+  },
+  {
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "label": "Display Sequence",
+   "description": "Order in which items appear on KDS"
+  }
+ ],
+ "icon": "fa fa-fire",
+ "module": "Billing",
+ "name": "Kitchen Station",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "station_name,station_code",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "title_field": "station_name"
+}

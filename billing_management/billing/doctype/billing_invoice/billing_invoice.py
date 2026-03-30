@@ -44,8 +44,9 @@ class BillingInvoice(frappe.model.document.Document):
 			warehouse = row.warehouse or item.default_warehouse
 			if not warehouse:
 				frappe.throw(
-					frappe._("Warehouse is missing for item {0}. Set item default warehouse or row warehouse.")
-					.format(row.item_code)
+					frappe._(
+						"Warehouse is missing for item {0}. Set item default warehouse or row warehouse."
+					).format(row.item_code)
 				)
 
 			row.item_name = item.item_name
@@ -63,9 +64,9 @@ class BillingInvoice(frappe.model.document.Document):
 			total_qty += flt(row.qty)
 			total_amount += flt(row.amount)
 
-			requirements[(row.item_code, warehouse)] = requirements.get((row.item_code, warehouse), 0.0) + flt(
-				row.qty
-			)
+			requirements[(row.item_code, warehouse)] = requirements.get(
+				(row.item_code, warehouse), 0.0
+			) + flt(row.qty)
 
 		self.total_qty = flt(total_qty)
 		self.total_amount = flt(total_amount)
@@ -78,11 +79,26 @@ class BillingInvoice(frappe.model.document.Document):
 		precision = cint(frappe.db.get_single_value("System Settings", "float_precision") or 0)
 		self.discount_percentage = flt(discount_percentage)
 		self.discount_amount = flt(round(self.total_amount * self.discount_percentage / 100, precision))
-		self.grand_total = flt(round(self.total_amount - self.discount_amount, precision))
+		self.service_charge = flt(getattr(self, "service_charge", 0) or 0)
+		self.grand_total = flt(
+			round(self.total_amount - self.discount_amount + self.service_charge, precision)
+		)
 
 	def on_submit(self):
 		# Transition Draft -> Submitted.
 		self.status = "Submitted"
+
+		if getattr(self, "pos_order", None):
+			frappe.db.set_value(
+				"POS Order",
+				self.pos_order,
+				{
+					"billing_invoice": self.name,
+					"payment_status": "Paid" if self.status == "Paid" else "Unpaid",
+				},
+				update_modified=False,
+			)
+			return
 
 		# Backend rules:
 		# - validate stock availability
@@ -109,7 +125,9 @@ class BillingInvoice(frappe.model.document.Document):
 
 			qty = flt(row.qty)
 			if qty <= 0:
-				frappe.throw(frappe._("Row quantity must be greater than 0 for item {0}").format(row.item_code))
+				frappe.throw(
+					frappe._("Row quantity must be greater than 0 for item {0}").format(row.item_code)
+				)
 
 			resolved_rows.append((row, item, warehouse, qty))
 			requirements[(row.item_code, warehouse)] = requirements.get((row.item_code, warehouse), 0.0) + qty
@@ -127,12 +145,12 @@ class BillingInvoice(frappe.model.document.Document):
 				)
 
 		for row, _item, warehouse, qty in resolved_rows:
-			# "Reduce stock quantity" is achieved by posting an `Out` Stock Ledger entry.
+			# "Reduce stock quantity" is achieved by posting an `Sale` Stock Ledger entry.
 			create_and_submit_stock_ledger_entry(
 				item=row.item_code,
 				warehouse=warehouse,
 				qty=-qty,
-				transaction_type="Out",
+				transaction_type="Sale",
 				voucher_type=self.doctype,
 				voucher_no=self.name,
 				posting_date=str(self.posting_date),
@@ -140,7 +158,7 @@ class BillingInvoice(frappe.model.document.Document):
 			)
 
 	def on_cancel(self):
-		# Keep status consistent with submitted->paid flow.
+		# Transition back to Submitted.
 		self.status = "Submitted"
 
 		# Restore stock by posting an opposite Stock Ledger entry.
@@ -149,7 +167,7 @@ class BillingInvoice(frappe.model.document.Document):
 				item=row.item_code,
 				warehouse=row.warehouse,
 				qty=flt(row.qty),
-				transaction_type="In",
+				transaction_type="Purchase",
 				voucher_type=self.doctype,
 				voucher_no=self.name,
 				posting_date=str(self.posting_date),
@@ -174,5 +192,6 @@ def mark_as_paid(invoice_name: str) -> dict[str, str]:
 
 	# Only allow Paid transition (no automatic unmarking here).
 	doc.db_set("status", "Paid", update_modified=False)
+	if getattr(doc, "pos_order", None):
+		frappe.db.set_value("POS Order", doc.pos_order, "payment_status", "Paid", update_modified=False)
 	return {"status": "Paid"}
-

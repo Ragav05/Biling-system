@@ -2,7 +2,6 @@
  "actions": [],
  "autoname": "hash",
  "doctype": "DocType",
- "document_type": "Document",
  "editable_grid": 1,
  "engine": "InnoDB",
  "fields": [
@@ -23,19 +22,19 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "food_type",
-   "fieldtype": "Data",
-   "label": "Food Type",
-   "read_only": 1
-  },
-  {
    "fieldname": "item_category",
    "fieldtype": "Data",
    "label": "Category",
    "read_only": 1
   },
   {
-   "fieldname": "restaurant_section",
+   "fieldname": "food_type",
+   "fieldtype": "Data",
+   "label": "Food Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "restaurant_details",
    "fieldtype": "Section Break",
    "label": "Restaurant Details"
   },
@@ -75,9 +74,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "kitchen_section",
+   "fieldname": "kitchen_details",
    "fieldtype": "Section Break",
-   "label": "Kitchen & Modifications"
+   "label": "Kitchen Details"
   },
   {
    "fieldname": "item_modifications",
@@ -113,9 +112,9 @@
    "default": "Pending"
   },
   {
-   "fieldname": "pricing_section",
+   "fieldname": "pricing_details",
    "fieldtype": "Section Break",
-   "label": "Pricing"
+   "label": "Pricing Details"
   },
   {
    "fieldname": "description",
@@ -171,22 +170,8 @@
  "icon": "fa fa-shopping-bag",
  "istable": 1,
  "module": "Billing",
- "name": "Billing Invoice Item",
+ "name": "POS Order Item",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "All",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "track_changes": 1
 }
-

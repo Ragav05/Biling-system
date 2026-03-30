@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:table_name",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "fields": [
+  {
+   "fieldname": "table_name",
+   "fieldtype": "Data",
+   "label": "Table Name",
+   "in_list_view": 1,
+   "reqd": 1,
+   "unique": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "table_number",
+   "fieldtype": "Data",
+   "label": "Table Number",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "table_section",
+   "fieldtype": "Section Break",
+   "label": "Table Settings"
+  },
+  {
+   "fieldname": "table_type",
+   "fieldtype": "Select",
+   "label": "Table Type",
+   "options": "\n2 Seater\n4 Seater\n6 Seater\n8+ Seater\nBooth\nCounter\nOutdoor\nPrivate Room",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "label": "Zone/Area",
+   "description": "E.g., Main Hall, Patio, VIP, Bar Area"
+  },
+  {
+   "fieldname": "floor",
+   "fieldtype": "Data",
+   "label": "Floor"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_available",
+   "fieldtype": "Check",
+   "label": "Available Now"
+  },
+  {
+   "fieldname": "capacity_section",
+   "fieldtype": "Section Break",
+   "label": "Capacity"
+  },
+  {
+   "default": "2",
+   "fieldname": "min_capacity",
+   "fieldtype": "Int",
+   "label": "Minimum Capacity"
+  },
+  {
+   "default": "4",
+   "fieldname": "max_capacity",
+   "fieldtype": "Int",
+   "label": "Maximum Capacity"
+  },
+  {
+   "fieldname": "service_section",
+   "fieldtype": "Section Break",
+   "label": "Service Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_qr_code",
+   "fieldtype": "Check",
+   "label": "Has QR Code for Ordering"
+  },
+  {
+   "fieldname": "qr_code",
+   "fieldtype": "Attach Image",
+   "label": "QR Code Image",
+   "depends_on": "eval:doc.has_qr_code"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_split_bill",
+   "fieldtype": "Check",
+   "label": "Auto Split Bill"
+  },
+  {
+   "fieldname": "assigned_server",
+   "fieldtype": "Link",
+   "label": "Assigned Server/Waiter",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "icon": "fa fa-chair",
+ "module": "Billing",
+ "name": "Restaurant Table",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "table_name,table_number,zone",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "title_field": "table_name"
+}

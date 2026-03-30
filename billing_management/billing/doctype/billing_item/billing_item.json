@@ -28,7 +28,34 @@
    "label": "Description"
   },
   {
-   "default": "1",
+   "fieldname": "item_category",
+   "fieldtype": "Select",
+   "label": "Item Category",
+   "options": "\nAppetizer\nMain Course\nDessert\nBeverages\nSoup\nSalad\nBread\nRice\nNoodles\nPasta\nPizza\nBurger\nSandwich\nSnacks\nCombo/Thali\nSide Dish\nSauce/Dip\nIce Cream\nCoffee\nTea\nJuice/Shake\nAlcoholic Beverage",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "food_type",
+   "fieldtype": "Select",
+   "label": "Food Type",
+   "options": "\nVeg\nNon-Veg\nEgg\nVegan\nJain",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "spice_level",
+   "fieldtype": "Select",
+   "label": "Spice Level",
+   "options": "\nNone\nMild\nMedium\nHot\nExtra Hot"
+  },
+  {
+   "fieldname": "restaurant_section",
+   "fieldtype": "Section Break",
+   "label": "Restaurant Settings"
+  },
+  {
+   "default": "0",
    "fieldname": "is_stock_item",
    "fieldtype": "Check",
    "label": "Maintain Stock"
@@ -56,13 +83,54 @@
    "label": "Reorder Level (Low Stock Threshold)"
   },
   {
+   "fieldname": "kitchen_section",
+   "fieldtype": "Section Break",
+   "label": "Kitchen & Preparation"
+  },
+  {
+   "default": "0",
+   "fieldname": "preparation_time",
+   "fieldtype": "Int",
+   "label": "Preparation Time (minutes)"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_to_kitchen",
+   "fieldtype": "Check",
+   "label": "Send to Kitchen Display System (KDS)"
+  },
+  {
+   "depends_on": "eval:doc.send_to_kitchen",
+   "fieldname": "kitchen_station",
+   "fieldtype": "Link",
+   "label": "Kitchen Station",
+   "options": "Kitchen Station"
+  },
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing & Tax"
+  },
+  {
    "default": "0",
    "fieldname": "default_rate",
    "fieldtype": "Float",
    "label": "Default Rate"
   },
   {
-   "fieldname": "pricing_section",
+   "fieldname": "tax_category",
+   "fieldtype": "Link",
+   "label": "Tax Category",
+   "options": "Tax Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_service_charge_applicable",
+   "fieldtype": "Check",
+   "label": "Service Charge Applicable"
+  },
+  {
+   "fieldname": "date_wise_pricing_section",
    "fieldtype": "Section Break",
    "label": "Date-wise Pricing"
   },
@@ -77,6 +145,17 @@
    "fieldname": "is_active",
    "fieldtype": "Check",
    "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_available",
+   "fieldtype": "Check",
+   "label": "Available Today"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Item Image"
   }
  ],
  "icon": "fa fa-cubes",

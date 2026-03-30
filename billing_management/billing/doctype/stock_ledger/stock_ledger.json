@@ -23,9 +23,11 @@
   },
   {
    "fieldname": "transaction_type",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Transaction Type",
-   "in_list_view": 1
+   "options": "\nPurchase\nSale\nTransfer\nDamage/Wastage\nReturn\nAdjustment\nKitchen Transfer",
+   "in_list_view": 1,
+   "search_index": 1
   },
   {
    "fieldname": "qty",
@@ -33,6 +35,79 @@
    "label": "Qty Change",
    "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "balance_qty",
+   "fieldtype": "Float",
+   "label": "Balance Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "restaurant_section",
+   "fieldtype": "Section Break",
+   "label": "Restaurant Details"
+  },
+  {
+   "fieldname": "batch_no",
+   "fieldtype": "Data",
+   "label": "Batch No",
+   "description": "For perishable items tracking"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "description": "Important for perishable food items"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Purchase Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "kitchen_section",
+   "fieldtype": "Section Break",
+   "label": "Kitchen Details"
+  },
+  {
+   "fieldname": "from_kitchen_station",
+   "fieldtype": "Link",
+   "label": "From Kitchen Station",
+   "options": "Kitchen Station",
+   "depends_on": "eval:doc.transaction_type == 'Kitchen Transfer'"
+  },
+  {
+   "fieldname": "to_kitchen_station",
+   "fieldtype": "Link",
+   "label": "To Kitchen Station",
+   "options": "Kitchen Station",
+   "depends_on": "eval:doc.transaction_type == 'Kitchen Transfer'"
+  },
+  {
+   "fieldname": "wastage_reason",
+   "fieldtype": "Select",
+   "label": "Wastage Reason",
+   "options": "\nSpoiled\nDropped\nExpired\nWrong Preparation\nCustomer Return\nOther",
+   "depends_on": "eval:doc.transaction_type == 'Damage/Wastage'"
+  },
+  {
+   "fieldname": "reference_section",
+   "fieldtype": "Section Break",
+   "label": "Reference"
   },
   {
    "fieldname": "posting_date",
@@ -60,9 +135,21 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "invoice_no",
+   "fieldtype": "Link",
+   "label": "Invoice No",
+   "options": "Billing Invoice",
+   "depends_on": "eval:doc.transaction_type == 'Sale'"
+  },
+  {
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "icon": "fa fa-truck",

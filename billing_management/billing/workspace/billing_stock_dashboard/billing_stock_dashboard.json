@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Billing Stock Cards\", \"col\": 12}}]",
+ "content": "[{\"id\":\"Fz8Gh2Kp9L\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Live Orders\",\"col\":4}},{\"id\":\"Mn3Qr5Tx7W\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Billing Stock Cards\",\"col\":12}}]",
  "creation": "2026-03-26 15:47:42.893154",
  "custom_blocks": [
   {
@@ -15,17 +15,142 @@
  "indicator_color": "green",
  "is_hidden": 0,
  "label": "Billing Stock Dashboard",
- "links": [],
- "modified": "2026-03-27 13:18:26.246141",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Restaurant Management",
+   "link_count": 4,
+   "onboard": 1,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Live Orders",
+   "link_to": "live-orders",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Billing Invoice",
+   "link_to": "Billing Invoice",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Restaurant Table",
+   "link_to": "Restaurant Table",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Kitchen Station",
+   "link_to": "Kitchen Station",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Billing Items",
+   "link_count": 2,
+   "onboard": 1,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Billing Item",
+   "link_to": "Billing Item",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Ledger",
+   "link_to": "Stock Ledger",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-03-28 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Billing",
  "name": "Billing Stock Dashboard",
- "number_cards": [],
+ "number_cards": [
+  {
+   "aggregate_function_based_on": "",
+   "color": "Blue",
+   "doc_type": "Billing Invoice",
+   "docfield": "name",
+   "dynamic_link": "",
+   "function": "Count",
+   "label": "Live Orders",
+   "name": "Live Orders",
+   "parent_document_type": "",
+   "report": "",
+   "show_percentage_stats": 0,
+   "stats_type": "Sum",
+   "type": "DocType"
+  }
+ ],
  "owner": "Administrator",
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 0.0,
- "shortcuts": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "",
+   "format": "{}",
+   "icon": "fa fa-shopping-cart",
+   "label": "🍽️ Live Orders",
+   "link_to": "live-orders",
+   "stats_filter": "{}",
+   "type": "Page"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "Billing Invoice",
+   "link_to": "Billing Invoice",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "Restaurant Tables",
+   "link_to": "Restaurant Table",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "Menu Items",
+   "link_to": "Billing Item",
+   "stats_filter": "{}",
+   "type": "DocType"
+  }
+ ],
  "title": "Billing Stock Dashboard"
 }

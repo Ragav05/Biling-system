@@ -40,7 +40,9 @@ app_license = "mit"
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+page_js = {
+	"billing-stock-dashboard": "public/js/live_orders_dashboard.js"
+}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}

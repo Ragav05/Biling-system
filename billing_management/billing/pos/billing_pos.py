@@ -241,7 +241,7 @@ def get_restaurant_pos_context() -> dict:
 @frappe.whitelist()
 def get_pos_items(search: str | None = None, limit: int = 100, posting_date: str | None = None) -> list[dict]:
 	"""Return POS items with available stock in each item's default warehouse."""
-	filters: list = [["is_stock_item", "=", 1], ["is_active", "=", 1]]
+	filters: list = [["is_active", "=", 1]]
 	if search:
 		search_like = f"%{search.strip()}%"
 		filters = filters + [["name", "like", search_like]]
@@ -249,11 +249,18 @@ def get_pos_items(search: str | None = None, limit: int = 100, posting_date: str
 	limit = max(1, min(int(limit or 100), 200))
 	items = frappe.get_all(
 		"Billing Item",
-		fields=["name", "item_name", "item_category", "food_type", "default_warehouse", "kitchen_station"],
+		fields=[
+			"name",
+			"item_name",
+			"item_category",
+			"food_type",
+			"default_warehouse",
+			"kitchen_station",
+			"image",
+		],
 		filters=filters,
 		limit_page_length=limit,
 	)
-	items = [item for item in items if item.get("default_warehouse")]
 	if not items:
 		return []
 
@@ -284,6 +291,7 @@ def get_pos_items(search: str | None = None, limit: int = 100, posting_date: str
 				"item_category": item.get("item_category"),
 				"food_type": item.get("food_type"),
 				"kitchen_station": item.get("kitchen_station"),
+				"image": item.get("image"),
 				"rate": flt(get_effective_item_rate(item_code, posting_date=posting_date)),
 				"warehouse": warehouse,
 				"available_qty": flt(qty_map.get((item_code, warehouse), 0.0)),

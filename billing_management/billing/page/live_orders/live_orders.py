@@ -2,8 +2,15 @@ import frappe
 from frappe.utils import now_datetime, get_datetime
 
 
-ACTIVE_ORDER_STATUSES = ("Pending", "Preparing", "Ready")
+ACTIVE_ORDER_STATUSES = ("Pending", "Preparing", "Ready", "Served")
 ACTIVE_KITCHEN_STATUSES = ("Pending", "In Progress", "Ready")
+
+
+def _should_show_in_queue(order) -> bool:
+	if order.order_status != "Served":
+		return True
+
+	return order.order_type == "Dine-In" and order.payment_status == "Unpaid" and not order.billing_invoice
 
 
 @frappe.whitelist()
@@ -36,6 +43,7 @@ def get_live_orders_data(order_type=None, payment_status=None):
 		],
 		order_by="posting_date desc, posting_time desc",
 	)
+	orders = [order for order in orders if _should_show_in_queue(order)]
 
 	for order in orders:
 		order.items = frappe.get_all(
@@ -62,7 +70,53 @@ def get_live_orders_data(order_type=None, payment_status=None):
 		"takeaway_orders": len([o for o in orders if o.order_type == "Takeaway"]),
 	}
 
-	return {"orders": orders, "tables": tables, "stats": stats}
+	return {"orders": orders, "tables": tables, "stats": stats, "payment_summary": _get_payment_summary()}
+
+
+def _get_payment_summary():
+	"""Return today's payment breakdown by method."""
+	today = frappe.utils.nowdate()
+	rows = frappe.db.sql(
+		"""
+		SELECT payment_method, COUNT(*) AS count, SUM(grand_total) AS total_amount
+		FROM `tabPOS Order`
+		WHERE docstatus = 1
+			AND billing_mode = 'Pay Now'
+			AND payment_method IS NOT NULL
+			AND payment_method != ''
+			AND posting_date = %s
+		GROUP BY payment_method
+		ORDER BY total_amount DESC
+		""",
+		today,
+		as_dict=True,
+	)
+
+	invoice_rows = frappe.db.sql(
+		"""
+		SELECT payment_method, COUNT(*) AS count, SUM(grand_total) AS total_amount
+		FROM `tabBilling Invoice`
+		WHERE docstatus = 1
+			AND payment_method IS NOT NULL
+			AND payment_method != ''
+			AND posting_date = %s
+		GROUP BY payment_method
+		ORDER BY total_amount DESC
+		""",
+		today,
+		as_dict=True,
+	)
+
+	merged = {}
+	for row in rows + invoice_rows:
+		method = row.payment_method
+		if method in merged:
+			merged[method]["count"] += row.count
+			merged[method]["total_amount"] += row.total_amount
+		else:
+			merged[method] = {"payment_method": method, "count": row.count, "total_amount": row.total_amount}
+
+	return sorted(merged.values(), key=lambda x: x["total_amount"], reverse=True)
 
 
 @frappe.whitelist()

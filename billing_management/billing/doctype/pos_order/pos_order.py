@@ -142,6 +142,9 @@ class POSOrder(Document):
 
 	def on_cancel(self):
 		"""On cancel - restore stock"""
+		if self.order_type == "Dine-In" and self.table_no:
+			frappe.db.set_value("Restaurant Table", self.table_no, "is_available", 1)
+
 		for item in self.items:
 			billing_item = frappe.get_doc("Billing Item", item.item_code)
 			if billing_item.is_stock_item:

@@ -11,212 +11,160 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 	};
 
 	const $wrapper = $(wrapper);
-	$wrapper.html(`
-		<div class="restaurant-pos-shell">
-			<div class="restaurant-pos-header">
-				<div>
-					<div class="restaurant-pos-eyebrow">Restaurant Billing System</div>
-					<h1>Restaurant POS Command Center</h1>
-					<p>Run dine-in and takeaway orders from one clean billing dashboard.</p>
+$wrapper.html(`
+		<div class="modern-pos">
+			<header class="mod-header">
+				<div class="mod-logo">🍽️ <span>POS</span></div>
+				<div class="mod-actions">
+					<button class="mod-btn" onclick="frappe.set_route(\"live-orders\")">📋 Live Orders</button>
+					<button class="mod-btn" onclick="location.reload()">🔄 Refresh</button>
 				</div>
-				<div class="restaurant-pos-header-actions">
-					<button class="btn btn-light btn-sm restaurant-open-live">Live Orders</button>
-					<button class="btn btn-light btn-sm restaurant-refresh">Refresh</button>
-				</div>
+			</header>
+			
+			<div class="mod-stats">
+				<div class="mod-stat orange"><span>📋</span><b>Active Orders</b><strong data-stat="active_orders">0</strong></div>
+				<div class="mod-stat teal"><span>👨‍🍳</span><b>Kitchen</b><strong data-stat="kitchen_queue">0</strong></div>
+				<div class="mod-stat purple"><span>💰</span><b>Unpaid</b><strong data-stat="unpaid_orders">0</strong></div>
+				<div class="mod-stat green"><span>🪑</span><b>Tables</b><strong data-stat="available_tables">0</strong></div>
 			</div>
-
-			<div class="restaurant-stat-grid">
-				<div class="restaurant-stat-card"><span>Active Orders</span><strong data-stat="active_orders">0</strong></div>
-				<div class="restaurant-stat-card"><span>Kitchen Queue</span><strong data-stat="kitchen_queue">0</strong></div>
-				<div class="restaurant-stat-card"><span>Unpaid Orders</span><strong data-stat="unpaid_orders">0</strong></div>
-				<div class="restaurant-stat-card"><span>Available Tables</span><strong data-stat="available_tables">0</strong></div>
-			</div>
-
-			<div class="restaurant-pos-grid">
-				<section class="restaurant-panel restaurant-panel-menu">
-					<div class="restaurant-panel-head">
-						<div>
-							<h3>Menu</h3>
-							<p>Search and add items quickly</p>
-						</div>
-						<button class="btn btn-default btn-sm restaurant-add-item">New Item</button>
+			
+			<div class="mod-body">
+				<section class="mod-menu">
+					<div class="mod-menu-header">
+						<h2>Menu Items</h2>
+						<input type="text" class="mod-search" placeholder="🔍 Search items..." />
 					</div>
-					<div class="restaurant-search-row">
-						<input class="form-control restaurant-item-search" placeholder="Search menu items" />
+					<div class="mod-cats">
+						<button class="mod-cat active">All</button>
+						<button class="mod-cat">Veg</button>
+						<button class="mod-cat">Non-Veg</button>
+						<button class="mod-cat">Drinks</button>
 					</div>
-					<div class="restaurant-menu-grid"></div>
+					<div class="mod-items"></div>
 				</section>
-
-				<section class="restaurant-panel restaurant-panel-order">
-					<div class="restaurant-panel-head">
-						<div>
-							<h3>Order Builder</h3>
-							<p>Choose service mode, billing flow, and order details</p>
+				
+				<aside class="mod-sidebar">
+					<div class="mod-order-panel">
+						<div class="mod-panel-header">
+							<h3>New Order</h3>
 						</div>
+						<div class="mod-order-type">
+							<button class="mod-type active" data-t="Dine-In">🍽️ Dine-In</button>
+							<button class="mod-type" data-t="Takeaway">🥡 Takeaway</button>
+						</div>
+						<div class="mod-pay-type">
+							<button class="mod-pay active" data-p="Pay Later">Pay Later</button>
+							<button class="mod-pay" data-p="Pay Now">💳 Pay Now</button>
+						</div>
+					<div class="mod-fields">
+						<select class="mod-field mod-field-table"><option value="">Select table</option></select>
+						<input class="mod-field mod-field-customer" placeholder="👤 Customer" />
+						<input class="mod-field mod-field-mobile" placeholder="📱 Mobile" />
+						</div>
+						<textarea class="mod-notes" placeholder="📝 Notes..."></textarea>
 					</div>
-
-					<div class="restaurant-mode-block">
-						<label>Service Mode</label>
-						<div class="restaurant-chip-group" data-role="order_type">
-							<button class="restaurant-chip active" data-value="Dine-In">Dine-In</button>
-							<button class="restaurant-chip" data-value="Takeaway">Takeaway</button>
+					
+					<div class="mod-cart-panel">
+						<div class="mod-cart-header">
+							<h3>🛒 Current Order</h3>
+							<button class="mod-clear">Clear</button>
 						</div>
+						<div class="mod-cart-items"></div>
+						<div class="mod-totals">
+							<div class="mod-row"><span>Subtotal</span><b data-total="subtotal">₹0</b></div>
+							<div class="mod-row"><span>Discount</span><b data-total="discount">-₹0</b></div>
+							<div class="mod-total"><span>Total</span><b data-total="grand_total">₹0</b></div>
+						</div>
+						<button class="mod-save">✅ Save Order</button>
 					</div>
-
-					<div class="restaurant-mode-block">
-						<label>Billing Mode</label>
-						<div class="restaurant-chip-group" data-role="billing_mode">
-							<button class="restaurant-chip" data-value="Pay Now">Pay Now</button>
-							<button class="restaurant-chip active" data-value="Pay Later">Pay Later</button>
-						</div>
-					</div>
-
-					<div class="restaurant-form-grid">
-						<div class="restaurant-field" data-field="table_wrap">
-							<label>Table</label>
-							<select class="form-control restaurant-table-select"></select>
-						</div>
-						<div class="restaurant-field" data-field="token_wrap" style="display:none;">
-							<label>Takeaway Token</label>
-							<div class="restaurant-token-preview">Generated after saving order</div>
-						</div>
-						<div class="restaurant-field">
-							<label>Customer Name</label>
-							<input class="form-control restaurant-customer-name" placeholder="Walk-in Customer" />
-						</div>
-						<div class="restaurant-field">
-							<label>Mobile Number</label>
-							<input class="form-control restaurant-mobile-no" placeholder="Optional" />
-						</div>
-						<div class="restaurant-field">
-							<label>Discount %</label>
-							<input type="number" min="0" max="100" step="0.01" class="form-control restaurant-discount" value="0" />
-						</div>
-						<div class="restaurant-field" data-field="service_charge_wrap">
-							<label>Service Charge</label>
-							<input type="number" min="0" step="0.01" class="form-control restaurant-service-charge" value="0" />
-						</div>
-					</div>
-
-					<div class="restaurant-field restaurant-full-width">
-						<label>Order Notes</label>
-						<textarea class="form-control restaurant-remarks" rows="3" placeholder="Special notes for the order"></textarea>
-					</div>
-
-					<div class="restaurant-cart-list"></div>
-
-					<div class="restaurant-summary-grid">
-						<div><span>Subtotal</span><strong data-total="subtotal">0</strong></div>
-						<div><span>Discount</span><strong data-total="discount">0</strong></div>
-						<div><span>Service Charge</span><strong data-total="service_charge">0</strong></div>
-						<div class="restaurant-grand"><span>Grand Total</span><strong data-total="grand_total">0</strong></div>
-					</div>
-
-					<div class="restaurant-action-row">
-						<button class="btn btn-default restaurant-clear-cart">Clear</button>
-						<button class="btn btn-primary restaurant-submit-order">Save Unpaid Order</button>
-					</div>
-				</section>
+				</aside>
 			</div>
 		</div>
 	`);
 
-	if (!document.getElementById("restaurant-pos-style")) {
-		const style = document.createElement("style");
-		style.id = "restaurant-pos-style";
-		style.innerHTML = `
-			.restaurant-pos-shell { padding: 18px; background: #f5f7fb; min-height: 100%; }
-			.restaurant-pos-header {
-				display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
-				padding:24px; border-radius:24px; margin-bottom:18px;
-				background: radial-gradient(circle at top left, #6f7bf7, #3a44c3 55%, #1f2c7a 100%);
-				color:#fff; box-shadow:0 20px 45px rgba(47, 63, 147, 0.22);
-			}
-			.restaurant-pos-eyebrow { text-transform:uppercase; letter-spacing:.12em; font-size:11px; opacity:.8; margin-bottom:8px; }
-			.restaurant-pos-header h1 { margin:0; font-size:30px; font-weight:700; }
-			.restaurant-pos-header p { margin:8px 0 0; opacity:.9; }
-			.restaurant-pos-header-actions { display:flex; gap:10px; }
-			.restaurant-pos-header-actions .btn { border:none; border-radius:12px; padding:10px 14px; font-weight:600; }
-			.restaurant-stat-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:18px; }
-			.restaurant-stat-card {
-				background:#fff; border:1px solid #e6ebf5; border-radius:18px; padding:16px 18px;
-				box-shadow:0 8px 20px rgba(30, 41, 59, 0.06); display:flex; flex-direction:column; gap:8px;
-			}
-			.restaurant-stat-card span { color:#64748b; font-size:13px; }
-			.restaurant-stat-card strong { color:#0f172a; font-size:28px; }
-			.restaurant-pos-grid { display:grid; grid-template-columns:1.2fr .95fr; gap:18px; }
-			.restaurant-panel {
-				background:#fff; border:1px solid #e7ecf4; border-radius:24px; padding:20px;
-				box-shadow:0 12px 32px rgba(15, 23, 42, 0.06);
-			}
-			.restaurant-panel-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; }
-			.restaurant-panel-head h3 { margin:0; font-size:22px; font-weight:700; color:#0f172a; }
-			.restaurant-panel-head p { margin:4px 0 0; color:#64748b; font-size:13px; }
-			.restaurant-search-row { margin-bottom:16px; }
-			.restaurant-item-search, .restaurant-table-select, .restaurant-customer-name, .restaurant-mobile-no,
-			.restaurant-discount, .restaurant-service-charge, .restaurant-remarks {
-				border-radius:14px !important; border:1px solid #d9e1ef !important; min-height:44px;
-			}
-			.restaurant-menu-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px; max-height:72vh; overflow:auto; }
-			.restaurant-menu-card {
-				border:1px solid #e8edf5; border-radius:18px; padding:16px; cursor:pointer; background:linear-gradient(180deg, #fff, #fbfcff);
-				transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-			}
-			.restaurant-menu-card:hover { transform:translateY(-2px); border-color:#c7d4f9; box-shadow:0 10px 24px rgba(88, 99, 226, .12); }
-			.restaurant-menu-card.out { opacity:.58; cursor:not-allowed; }
-			.restaurant-menu-card .meta { color:#64748b; font-size:12px; margin-top:6px; }
-			.restaurant-menu-card .price { font-size:20px; color:#1d4ed8; font-weight:700; margin-top:14px; }
-			.restaurant-stock { display:inline-flex; margin-top:12px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#eef4ff; color:#3557d7; }
-			.restaurant-stock.out { background:#ffeaea; color:#c2410c; }
-			.restaurant-mode-block { margin-bottom:14px; }
-			.restaurant-mode-block label, .restaurant-field label { display:block; color:#475569; font-size:12px; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em; }
-			.restaurant-chip-group { display:flex; gap:10px; flex-wrap:wrap; }
-			.restaurant-chip {
-				border:1px solid #d7dfef; background:#f8fafc; color:#334155; border-radius:999px; padding:10px 16px; font-weight:700;
-			}
-			.restaurant-chip.active { background:linear-gradient(135deg, #4f46e5, #2563eb); color:#fff; border-color:transparent; }
-			.restaurant-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
-			.restaurant-token-preview {
-				min-height:44px; border-radius:14px; border:1px dashed #ced8f0; display:flex; align-items:center; padding:0 14px; color:#4338ca; background:#f8f8ff;
-			}
-			.restaurant-full-width { margin-bottom:14px; }
-			.restaurant-cart-list { min-height:160px; max-height:34vh; overflow:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
-			.restaurant-empty-cart { padding:24px; border:1px dashed #d9e1ef; border-radius:18px; text-align:center; color:#64748b; background:#fafcff; }
-			.restaurant-cart-row { display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; border:1px solid #e7ecf4; border-radius:18px; padding:12px 14px; }
-			.restaurant-cart-row .name { font-weight:700; color:#0f172a; }
-			.restaurant-cart-row .meta { color:#64748b; font-size:12px; }
-			.restaurant-qty-box { display:flex; align-items:center; gap:8px; }
-			.restaurant-qty-box button { border:none; width:32px; height:32px; border-radius:10px; background:#eef2ff; color:#3730a3; font-weight:700; }
-			.restaurant-qty-box input { width:64px; text-align:center; border-radius:12px; border:1px solid #d8e0f0; height:36px; }
-			.restaurant-row-amount { text-align:right; }
-			.restaurant-row-amount strong { display:block; font-size:16px; color:#0f172a; }
-			.restaurant-row-amount button { border:none; background:none; color:#dc2626; padding:0; font-size:12px; }
-			.restaurant-summary-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; margin-bottom:16px; }
-			.restaurant-summary-grid div { background:#f8fafc; border:1px solid #e4eaf5; border-radius:18px; padding:14px 16px; }
-			.restaurant-summary-grid span { display:block; color:#64748b; font-size:12px; margin-bottom:4px; }
-			.restaurant-summary-grid strong { font-size:20px; color:#0f172a; }
-			.restaurant-summary-grid .restaurant-grand { background:linear-gradient(135deg, #0f766e, #0f9b7a); border:none; }
-			.restaurant-summary-grid .restaurant-grand span, .restaurant-summary-grid .restaurant-grand strong { color:#fff; }
-			.restaurant-action-row { display:flex; justify-content:flex-end; gap:12px; }
-			.restaurant-action-row .btn { min-width:140px; border-radius:14px; height:44px; font-weight:700; }
-			@media (max-width: 1200px) { .restaurant-pos-grid { grid-template-columns:1fr; } .restaurant-stat-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
-			@media (max-width: 768px) {
-				.restaurant-pos-shell { padding:12px; }
-				.restaurant-pos-header { flex-direction:column; border-radius:20px; }
-				.restaurant-stat-grid, .restaurant-form-grid, .restaurant-summary-grid { grid-template-columns:1fr; }
-				.restaurant-action-row { flex-direction:column; }
-			}
+	if (!document.getElementById("modern-pos-css")) {
+		const css = document.createElement("style");
+		css.id = "modern-pos-css";
+		css.textContent = `
+			@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+			.modern-pos { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 100vh; }
+			.mod-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+			.mod-logo { font-size: 24px; font-weight: 700; }
+			.mod-logo span { color: #FF6B35; }
+			.mod-actions { display: flex; gap: 10px; }
+			.mod-btn { padding: 8px 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+			.mod-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+			.mod-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 12px 24px; background: #fff; flex-shrink: 0; }
+			.mod-stat { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; color: #fff; text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; min-height: 64px; }
+			.mod-stat:hover { transform: translateY(-4px); }
+			.mod-stat span { font-size: 22px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0; }
+			.mod-stat b { font-size: 11px; opacity: 0.9; display: block; margin: 0; line-height: 1.2; }
+			.mod-stat strong { font-size: 24px; font-weight: 700; line-height: 1; }
+			.mod-stat.orange { background: linear-gradient(135deg, #FF6B35, #f7931e); }
+			.mod-stat.teal { background: linear-gradient(135deg, #2EC4B6, #20a89a); }
+			.mod-stat.purple { background: linear-gradient(135deg, #8B5CF6, #7c3aed); }
+			.mod-stat.green { background: linear-gradient(135deg, #10B981, #059669); }
+			.mod-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(380px, 0.95fr); padding: 20px; gap: 20px; min-height: calc(100vh - 180px); align-items: start; }
+			.mod-menu { min-width: 0; background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
+			.mod-menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-shrink: 0; }
+			.mod-menu-header h2 { margin: 0; font-size: 20px; color: #1a1a2e; }
+			.mod-search { width: 200px; padding: 10px 16px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s; flex-shrink: 0; }
+			.mod-cats { display: flex; gap: 8px; margin-bottom: 16px; flex-shrink: 0; }
+			.mod-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; max-height: calc(100vh - 320px); overflow-y: auto; align-content: start; padding-right: 8px; min-height: 260px; }
+			.mod-item { border: 1px solid #eef2f7; border-radius: 16px; padding: 14px 14px 44px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s; text-align: left; position: relative; overflow: hidden; min-height: 116px; display: flex; flex-direction: column; justify-content: space-between; }
+			.mod-item:hover { transform: translateY(-6px); box-shadow: 0 8px 25px rgba(255,107,53,0.2); }
+			.mod-item.out { opacity: 0.5; }
+			.mod-item:not(.out):active { transform: scale(0.98); }
+			.mod-item-name { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; line-height: 1.35; padding-right: 24px; }
+			.mod-item-meta { font-size: 11px; font-weight: 500; color: #7b8794; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+			.mod-item-price { font-size: 18px; font-weight: 700; color: #FF6B35; }
+			.mod-item-btn { position: absolute; bottom: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; background: #2EC4B6; color: #fff; border: none; font-size: 18px; cursor: pointer; opacity: 1; transform: scale(1); transition: all 0.3s; box-shadow: 0 4px 10px rgba(46,196,182,0.35); }
+			.mod-item-btn:hover { background: #20a89a; }
+			.mod-sidebar { min-width: 0; display: grid; grid-template-rows: auto minmax(340px, 1fr); gap: 16px; min-height: 0; }
+			.mod-order-panel, .mod-cart-panel { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+			.mod-order-panel { overflow: auto; }
+			.mod-cart-panel { display: flex; flex-direction: column; min-height: 320px; overflow: hidden; }
+			.mod-panel-header h3, .mod-cart-header h3 { margin: 0 0 16px; font-size: 18px; color: #1a1a2e; }
+			.mod-order-type, .mod-pay-type { display: flex; gap: 8px; margin-bottom: 12px; }
+			.mod-type, .mod-pay { flex: 1; padding: 10px; border: 2px solid #e9ecef; background: #fff; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.3s; }
+			.mod-type.active { border-color: #FF6B35; background: linear-gradient(135deg, #fff5ed, #ffeee6); color: #FF6B35; }
+			.mod-pay.active { border-color: #10B981; background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #10B981; }
+			.mod-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+			.mod-field { width: 100%; padding: 10px 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.3s; background: #fff; }
+			.mod-field:focus { border-color: #FF6B35; }
+			.mod-field-table { grid-column: 1 / -1; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+			.mod-notes { width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 13px; min-height: 60px; resize: none; margin-bottom: 10px; outline: none; }
+			.mod-cart-header { display: flex; justify-content: space-between; align-items: center; }
+			.mod-clear { padding: 4px 10px; background: #fee2e2; border: none; color: #dc2626; border-radius: 6px; cursor: pointer; font-size: 12px; }
+			.mod-cart-items { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+			.mod-cart-empty { padding: 30px; text-align: center; color: #adb5bd; border: 2px dashed #e9ecef; border-radius: 12px; }
+			.mod-cart-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 10px; animation: slideIn 0.3s ease; }
+			@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+			.mod-cname { min-width: 0; font-size: 13px; font-weight: 500; color: #1a1a2e; line-height: 1.35; }
+			.mod-cqty { display: flex; align-items: center; gap: 6px; }
+			.mod-cqty button { width: 24px; height: 24px; border: none; background: #fff; border-radius: 6px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+			.mod-cqty input { width: 36px; text-align: center; border: 1px solid #dee2e6; border-radius: 6px; height: 24px; font-size: 12px; }
+			.mod-cprice { font-size: 14px; font-weight: 600; color: #1a1a2e; white-space: nowrap; }
+			.mod-crem { color: #dc2626; background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; }
+			.mod-totals { border-top: 2px solid #e9ecef; padding-top: 12px; }
+			.mod-row { display: flex; justify-content: space-between; font-size: 13px; color: #6c757d; margin-bottom: 6px; }
+			.mod-total { display: flex; justify-content: space-between; font-size: 18px; color: #1a1a2e; font-weight: 700; background: linear-gradient(135deg, #FF6B35, #f7931e); color: #fff; padding: 12px; border-radius: 12px; margin-top: 8px; }
+			.mod-save { width: 100%; padding: 14px; background: linear-gradient(135deg, #10B981, #059669); border: none; color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+			.mod-save:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+			@media (max-width: 1200px) { .mod-body { grid-template-columns: 1fr; min-height: auto; } .mod-sidebar { display: flex; } .mod-items { max-height: none; } .mod-cart-panel { min-height: 320px; } .mod-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+			@media (max-width: 768px) { .mod-header, .mod-menu-header { flex-direction: column; align-items: stretch; } .mod-actions, .mod-cats, .mod-order-type, .mod-pay-type { flex-wrap: wrap; } .mod-search { width: 100%; } .mod-fields { grid-template-columns: 1fr; } .mod-cart-item { grid-template-columns: 1fr; } .mod-cqty { justify-content: flex-start; } .mod-stats { grid-template-columns: 1fr; } .mod-stat { grid-template-columns: 28px 1fr auto; padding: 10px 12px; } .mod-stat span { width: 28px; height: 28px; font-size: 18px; } .mod-stat strong { font-size: 20px; } }
 		`;
-		document.head.appendChild(style);
+		document.head.appendChild(css);
 	}
 
-	const $menuGrid = $wrapper.find(".restaurant-menu-grid");
-	const $cartList = $wrapper.find(".restaurant-cart-list");
-	const $search = $wrapper.find(".restaurant-item-search");
-	const $tableSelect = $wrapper.find(".restaurant-table-select");
-	const $discount = $wrapper.find(".restaurant-discount");
-	const $serviceCharge = $wrapper.find(".restaurant-service-charge");
-	const $submit = $wrapper.find(".restaurant-submit-order");
+	const $menuGrid = $wrapper.find(".mod-items");
+	const $cartList = $wrapper.find(".mod-cart-items");
+	const $search = $wrapper.find(".mod-search");
+	const $tableSelect = $wrapper.find(".mod-field").eq(0);
+	const $discount = null;
+	const $serviceCharge = null;
+	const $submit = $wrapper.find(".mod-save");
+	const $clearBtn = $wrapper.find(".mod-clear");
 
 	const currencyCode =
 		(frappe.defaults && frappe.defaults.get_default && frappe.defaults.get_default("currency")) || "INR";
@@ -268,33 +216,37 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 	function renderItems() {
 		$menuGrid.empty();
 		if (!state.items.length) {
-			$menuGrid.html('<div class="restaurant-empty-cart">No items found.</div>');
+			$menuGrid.html('<div class="mod-cart-empty">No items found</div>');
 			return;
 		}
 
 		state.items.forEach((item) => {
 			const isOut = flt(item.available_qty) <= 0;
-			const stockClass = isOut ? "out" : "";
-			const card = $(
-				`<div class="restaurant-menu-card ${stockClass}">
-					<div class="title">${frappe.utils.escape_html(item.item_name)}</div>
-					<div class="meta">${frappe.utils.escape_html(item.item_category || "Menu Item")} • ${frappe.utils.escape_html(item.food_type || "Kitchen")}</div>
-					<div class="price">${formatMoney(item.rate)}</div>
-					<div class="stock ${stockClass ? "out" : ""}">${isOut ? "Out of Stock" : `Available ${flt(item.available_qty)}`}</div>
-				</div>`
-			);
-			card.find(".stock").addClass("restaurant-stock");
-			card.on("click", () => {
+			const meta = [item.item_category, item.food_type].filter(Boolean).join(" • ");
+			const cardHtml = `<div class="mod-item ${isOut ? 'out' : ''}">
+				<div class="mod-item-name">${frappe.utils.escape_html(item.item_name)}</div>
+				<div class="mod-item-meta">${frappe.utils.escape_html(meta || "Menu Item")}</div>
+				<div class="mod-item-price">${formatMoney(item.rate)}</div>
+				<button class="mod-item-btn">+</button>
+			</div>`;
+			const $card = $(cardHtml);
+			if (!isOut) {
+				$card.on("click", function () {
+					addToCart(item);
+				});
+			}
+			$card.find(".mod-item-btn").click(function (e) {
+				e.stopPropagation();
 				if (!isOut) addToCart(item);
 			});
-			$menuGrid.append(card);
+			$menuGrid.append($card);
 		});
 	}
 
 	function renderCart() {
 		$cartList.empty();
 		if (!state.cart_order.length) {
-			$cartList.html('<div class="restaurant-empty-cart">Add menu items to start a new order.</div>');
+			$cartList.html('<div class="mod-cart-empty">🛒 Add items to start order</div>');
 			renderTotals();
 			return;
 		}
@@ -302,27 +254,20 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 		state.cart_order.forEach((code) => {
 			const row = state.cart[code];
 			if (!row) return;
-			const entry = $(
-				`<div class="restaurant-cart-row">
-					<div>
-						<div class="name">${frappe.utils.escape_html(row.item_name)}</div>
-						<div class="meta">${formatMoney(row.rate)} each</div>
-					</div>
-					<div class="restaurant-qty-box">
-						<button data-action="minus">-</button>
-						<input type="number" min="1" value="${flt(row.qty)}" />
-						<button data-action="plus">+</button>
-					</div>
-					<div class="restaurant-row-amount">
-						<strong>${formatMoney(flt(row.qty) * flt(row.rate))}</strong>
-						<button type="button">Remove</button>
-					</div>
-				</div>`
-			);
-			entry.find('[data-action="minus"]').on("click", () => updateQty(code, row.qty - 1));
-			entry.find('[data-action="plus"]').on("click", () => updateQty(code, row.qty + 1));
-			entry.find("input").on("change", (e) => updateQty(code, flt(e.target.value) || 1));
-			entry.find(".restaurant-row-amount button").on("click", () => removeFromCart(code));
+			const entry = $(`<div class="mod-cart-item">
+				<div class="mod-cname">${frappe.utils.escape_html(row.item_name)}</div>
+				<div class="mod-cqty">
+					<button data-action="minus">-</button>
+					<input type="number" value="${flt(row.qty)}" />
+					<button data-action="plus">+</button>
+				</div>
+				<div class="mod-cprice">${formatMoney(flt(row.qty) * flt(row.rate))}</div>
+				<button class="mod-crem">×</button>
+			</div>`);
+			entry.find('[data-action="minus"]').click(function () { updateQty(code, row.qty - 1); });
+			entry.find('[data-action="plus"]').click(function () { updateQty(code, row.qty + 1); });
+			entry.find("input").change(function (e) { updateQty(code, flt(e.target.value) || 1); });
+			entry.find(".mod-crem").click(function () { removeFromCart(code); });
 			$cartList.append(entry);
 		});
 
@@ -368,34 +313,29 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 
 	function toggleMode(role, value) {
 		state[role] = value;
-		$wrapper.find(`.restaurant-chip-group[data-role="${role}"] .restaurant-chip`).removeClass("active");
-		$wrapper.find(`.restaurant-chip-group[data-role="${role}"] .restaurant-chip[data-value="${value}"]`).addClass("active");
-
-		const dineIn = state.order_type === "Dine-In";
-		$wrapper.find('[data-field="table_wrap"]').toggle(dineIn);
-		$wrapper.find('[data-field="service_charge_wrap"]').toggle(dineIn);
-		$wrapper.find('[data-field="token_wrap"]').toggle(!dineIn);
-		if (!dineIn) {
-			$tableSelect.val("");
-			$serviceCharge.val(0);
-			state.service_charge = 0;
+		if (role === "order_type") {
+			$wrapper.find(".mod-type").removeClass("active");
+			$wrapper.find(`.mod-type[data-t="${value}"]`).addClass("active");
+		} else {
+			$wrapper.find(".mod-pay").removeClass("active");
+			$wrapper.find(`.mod-pay[data-p="${value}"]`).addClass("active");
 		}
-
-		$submit.text(state.billing_mode === "Pay Now" ? "Pay & Generate Bill" : "Save Unpaid Order");
+		$submit.text(value === "Pay Now" ? "💳 Pay Now" : "✅ Save Order");
 		renderTotals();
 	}
 
 	function getPayload(paymentValues) {
 		const totals = calculateTotals();
+		const $flds = $wrapper.find(".mod-field");
 		return {
 			order_type: state.order_type,
 			billing_mode: state.billing_mode,
 			table_no: $tableSelect.val(),
-			customer_name: $wrapper.find(".restaurant-customer-name").val(),
-			mobile_no: $wrapper.find(".restaurant-mobile-no").val(),
-			discount_percentage: flt(state.discount_percentage),
-			service_charge: state.order_type === "Dine-In" ? flt(state.service_charge) : 0,
-			remarks: $wrapper.find(".restaurant-remarks").val(),
+			customer_name: $flds.eq(1).val(),
+			mobile_no: $flds.eq(2).val(),
+			discount_percentage: 0,
+			service_charge: 0,
+			remarks: $wrapper.find(".mod-notes").val(),
 			payment_method: paymentValues ? paymentValues.payment_method : null,
 			payment_amount: paymentValues ? paymentValues.payment_amount : 0,
 			items: state.cart_order.map((code) => ({
@@ -412,13 +352,9 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 	function resetOrder() {
 		state.cart = {};
 		state.cart_order = [];
-		state.discount_percentage = 0;
-		state.service_charge = 0;
-		$discount.val(0);
-		$serviceCharge.val(0);
-		$wrapper.find(".restaurant-customer-name, .restaurant-mobile-no, .restaurant-remarks").val("");
-		$tableSelect.val("");
+		$wrapper.find(".mod-field, .mod-notes").val("");
 		renderCart();
+		renderTotals();
 	}
 
 	function submitOrder(paymentValues) {
@@ -446,9 +382,6 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 						: __("Order {0} saved successfully", [message.order_name]),
 					indicator: "green",
 				});
-				if (message.takeaway_token) {
-					$wrapper.find(".restaurant-token-preview").text(message.takeaway_token);
-				}
 				resetOrder();
 				loadContext();
 				if (message.invoice_name) {
@@ -501,26 +434,21 @@ frappe.pages["billing-dashboard"].on_page_load = function (wrapper) {
 		});
 	}
 
-	$wrapper.find(".restaurant-chip-group .restaurant-chip").on("click", function () {
-		const $button = $(this);
-		toggleMode($button.closest(".restaurant-chip-group").data("role"), $button.data("value"));
+	$wrapper.find(".mod-type").click(function () {
+		toggleMode("order_type", $(this).attr("data-t"));
 	});
-	$search.on("input", frappe.utils.debounce(() => loadItems($search.val()), 250));
-	$discount.on("input", () => {
-		state.discount_percentage = Math.max(0, Math.min(100, flt($discount.val()) || 0));
-		renderTotals();
+	$wrapper.find(".mod-pay").click(function () {
+		toggleMode("billing_mode", $(this).attr("data-p"));
 	});
-	$serviceCharge.on("input", () => {
-		state.service_charge = Math.max(0, flt($serviceCharge.val()) || 0);
-		renderTotals();
-	});
-	$wrapper.find(".restaurant-refresh").on("click", () => {
-		loadContext();
+	$search.on("input", frappe.utils.debounce(function () {
 		loadItems($search.val());
+	}, 250));
+	$wrapper.find(".mod-header").on("click", ".mod-btn", function() {
+		const txt = $(this).text();
+		if (txt.includes("Refresh")) { loadContext(); loadItems($search.val()); }
+		else if (txt.includes("Live Orders")) { frappe.set_route("live-orders"); }
 	});
-	$wrapper.find(".restaurant-open-live").on("click", () => frappe.set_route("live-orders"));
-	$wrapper.find(".restaurant-add-item").on("click", () => frappe.new_doc("Billing Item"));
-	$wrapper.find(".restaurant-clear-cart").on("click", resetOrder);
+	$clearBtn.click(resetOrder);
 	$submit.on("click", () => {
 		if (state.billing_mode === "Pay Now") {
 			openPaymentDialog();

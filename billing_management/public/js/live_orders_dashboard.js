@@ -1,17 +1,24 @@
-// Add Live Orders button to Billing Stock Dashboard
-frappe.pages['billing-stock-dashboard'].on_page_load = function(wrapper) {
-    // Wait for the page to fully load
-    setTimeout(function() {
-        // Find the action area and add Live Orders button
-        var $live_orders_btn = $('<button class="btn btn-primary btn-sm" onclick="frappe.set_route(\'live-orders\')">
-            <svg class="icon icon-sm"><use href="#icon-pos"></use></svg>
-            🍽️ Live Orders
-        </button>');
-        
-        // Find the button container and prepend our button
-        var $btn_container = $(wrapper).find('.btn:contains("Open POS Billing")').parent();
-        if ($btn_container.length) {
-            $btn_container.prepend($live_orders_btn);
-        }
-    }, 1000);
+// Add a Live Orders shortcut to the billing stock dashboard.
+frappe.pages["billing-stock-dashboard"].on_page_load = function (wrapper) {
+	const addLiveOrdersButton = () => {
+		const $wrapper = $(wrapper);
+		const $posButton = $wrapper.find('.btn:contains("Open POS Billing")').first();
+
+		if (!$posButton.length || $wrapper.find(".billing-live-orders-btn").length) {
+			return;
+		}
+
+		const $liveOrdersButton = $(
+			`<button class="btn btn-primary btn-sm billing-live-orders-btn">
+				<svg class="icon icon-sm"><use href="#icon-pos"></use></svg>
+				<span>${__("Live Orders")}</span>
+			</button>`
+		);
+
+		$liveOrdersButton.on("click", () => frappe.set_route("live-orders"));
+		$posButton.parent().prepend($liveOrdersButton);
+	};
+
+	// The stock dashboard renders its toolbar after page load.
+	setTimeout(addLiveOrdersButton, 1000);
 };

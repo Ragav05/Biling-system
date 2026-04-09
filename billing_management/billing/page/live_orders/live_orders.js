@@ -30,6 +30,11 @@ frappe.pages["live-orders"].on_page_load = function (wrapper) {
 				<div class="liveops-stat-card"><span>Takeaway Orders</span><strong data-stat="takeaway_orders">0</strong></div>
 			</div>
 
+			<div class="liveops-payment-summary">
+				<div class="liveops-payment-head"><h3>Today's Payment Summary</h3></div>
+				<div class="liveops-payment-grid" data-payment-summary></div>
+			</div>
+
 			<div class="liveops-filter-row">
 				<div class="liveops-chip-group" data-role="type">
 					<button class="liveops-chip active" data-value="All">All</button>
@@ -115,8 +120,15 @@ frappe.pages["live-orders"].on_page_load = function (wrapper) {
 			.liveops-table-card.available { background:linear-gradient(135deg, #ecfdf5, #f0fdf4); border-color:#bbf7d0; }
 			.liveops-table-card strong { display:block; font-size:18px; color:#0f172a; }
 			.liveops-table-card span { color:#64748b; font-size:12px; }
+			.liveops-payment-summary { background:#fff; border:1px solid #e5eaf4; border-radius:18px; padding:16px 18px; margin-bottom:16px; box-shadow:0 8px 20px rgba(15,23,42,.05); }
+			.liveops-payment-head h3 { margin:0 0 12px; font-size:16px; color:#0f172a; }
+			.liveops-payment-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; }
+			.liveops-payment-item { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; }
+			.liveops-payment-item .label { color:#64748b; font-size:12px; margin-bottom:4px; }
+			.liveops-payment-item .amount { font-size:18px; font-weight:700; color:#0f172a; }
+			.liveops-payment-item .count { color:#64748b; font-size:11px; }
 			@media (max-width: 1200px) { .liveops-stat-grid { grid-template-columns:repeat(3, minmax(0,1fr)); } .liveops-grid { grid-template-columns:1fr; } }
-			@media (max-width: 768px) { .liveops-shell { padding:12px; } .liveops-header { flex-direction:column; } .liveops-stat-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+			@media (max-width: 768px) { .liveops-shell { padding:12px; } .liveops-header { flex-direction:column; } .liveops-stat-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } .liveops-payment-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
 		`;
 		document.head.appendChild(style);
 	}
@@ -142,6 +154,26 @@ frappe.pages["live-orders"].on_page_load = function (wrapper) {
 	function renderStats() {
 		Object.keys(state.stats || {}).forEach((key) => {
 			$(wrapper).find(`[data-stat="${key}"]`).text(state.stats[key] || 0);
+		});
+	}
+
+	function renderPaymentSummary() {
+		const $grid = $(wrapper).find("[data-payment-summary]");
+		$grid.empty();
+		const payments = state.payment_summary || [];
+		if (!payments.length) {
+			$grid.html('<div class="liveops-empty">No paid orders today.</div>');
+			return;
+		}
+		payments.forEach((row) => {
+			const method = row.payment_method || "Unknown";
+			$grid.append(`
+				<div class="liveops-payment-item">
+					<div class="label">${frappe.utils.escape_html(method)}</div>
+					<div class="amount">${formatMoney(row.total_amount)}</div>
+					<div class="count">${row.count} order(s)</div>
+				</div>
+			`);
 		});
 	}
 
@@ -246,9 +278,14 @@ frappe.pages["live-orders"].on_page_load = function (wrapper) {
 				$actions.append(`<button class="btn btn-default btn-sm" data-action="${order.order_type === "Takeaway" ? "Picked Up" : "Served"}">${order.order_type === "Takeaway" ? "Picked Up" : "Served"}</button>`);
 			}
 			$actions.append('<button class="btn btn-default btn-sm" data-action="open">Open</button>');
-			if (!order.billing_invoice) {
+			const canGenerateBill =
+				!order.billing_invoice
+				&& ((order.order_type === "Dine-In" && order.order_status === "Served")
+					|| order.order_type !== "Dine-In");
+
+			if (canGenerateBill) {
 				$actions.append('<button class="btn btn-primary btn-sm" data-action="bill">Generate Bill</button>');
-			} else {
+			} else if (order.billing_invoice) {
 				$actions.append('<button class="btn btn-primary btn-sm" data-action="invoice">Open Bill</button>');
 			}
 
@@ -295,7 +332,9 @@ frappe.pages["live-orders"].on_page_load = function (wrapper) {
 				state.orders = r.message.orders || [];
 				state.tables = r.message.tables || [];
 				state.stats = r.message.stats || {};
+				state.payment_summary = r.message.payment_summary || [];
 				renderStats();
+				renderPaymentSummary();
 				renderOrders();
 				renderTables();
 			}

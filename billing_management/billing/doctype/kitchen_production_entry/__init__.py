@@ -1,0 +1,1 @@
+"""Kitchen Production Entry doctype."""

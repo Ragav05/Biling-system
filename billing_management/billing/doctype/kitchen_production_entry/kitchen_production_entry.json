@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "icon": "fa fa-cutlery",
+ "is_submittable": 1,
+ "module": "Billing",
+ "name": "Kitchen Production Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  }
+ ],
+ "search_fields": "production_item,production_date,kitchen_station,warehouse",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "production_item",
+ "track_changes": 1,
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "KPROD-.YYYY.-",
+   "default": "KPROD-.YYYY.-",
+   "hidden": 1
+  },
+  {
+   "fieldname": "production_section",
+   "fieldtype": "Section Break",
+   "label": "Production Details"
+  },
+  {
+   "fieldname": "production_item",
+   "fieldtype": "Link",
+   "label": "Prepared Item",
+   "options": "Billing Item",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "options": "UOM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quantity_prepared",
+   "fieldtype": "Float",
+   "label": "Quantity Prepared",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "production_date",
+   "fieldtype": "Date",
+   "label": "Production Date",
+   "default": "Today",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "production_time",
+   "fieldtype": "Time",
+   "label": "Production Time"
+  },
+  {
+   "fieldname": "kitchen_station",
+   "fieldtype": "Link",
+   "label": "Kitchen Station",
+   "options": "Kitchen Station"
+  },
+  {
+   "fieldname": "production_notes",
+   "fieldtype": "Small Text",
+   "label": "Production Notes"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Stock Posting"
+  },
+  {
+   "fieldname": "stock_ledger_entry",
+   "fieldtype": "Link",
+   "label": "Stock Ledger Entry",
+   "options": "Stock Ledger",
+   "read_only": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "reversal_stock_ledger_entry",
+   "fieldtype": "Link",
+   "label": "Reversal Stock Ledger Entry",
+   "options": "Stock Ledger",
+   "read_only": 1,
+   "allow_on_submit": 1
+  }
+ ]
+}

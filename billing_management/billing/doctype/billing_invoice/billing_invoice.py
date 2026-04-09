@@ -161,6 +161,18 @@ class BillingInvoice(frappe.model.document.Document):
 		# Transition back to Submitted.
 		self.status = "Submitted"
 
+		if getattr(self, "pos_order", None):
+			frappe.db.set_value(
+				"POS Order",
+				self.pos_order,
+				{
+					"billing_invoice": None,
+					"payment_status": "Unpaid",
+				},
+				update_modified=False,
+			)
+			return
+
 		# Restore stock by posting an opposite Stock Ledger entry.
 		for row in self.items:
 			create_and_submit_stock_ledger_entry(
@@ -195,3 +207,37 @@ def mark_as_paid(invoice_name: str) -> dict[str, str]:
 	if getattr(doc, "pos_order", None):
 		frappe.db.set_value("POS Order", doc.pos_order, "payment_status", "Paid", update_modified=False)
 	return {"status": "Paid"}
+
+
+@frappe.whitelist()
+def update_kitchen_status(invoice_name: str, status: str) -> dict[str, str]:
+	"""Update invoice kitchen status and sync linked POS order state when present."""
+	allowed_statuses = {"Pending", "In Progress", "Ready", "Served"}
+	if status not in allowed_statuses:
+		frappe.throw(frappe._("Invalid kitchen status: {0}").format(status))
+
+	doc = frappe.get_doc("Billing Invoice", invoice_name)
+	if doc.docstatus != 1:
+		frappe.throw(frappe._("Only submitted invoices can update kitchen status"))
+
+	doc.db_set("kitchen_status", status, update_modified=False)
+
+	if getattr(doc, "pos_order", None):
+		order_updates = {"kitchen_status": status}
+		if status == "In Progress":
+			order_updates["order_status"] = "Preparing"
+		elif status == "Ready":
+			order_updates["order_status"] = "Ready"
+		elif status == "Served":
+			order_updates["order_status"] = "Served"
+
+		frappe.db.set_value("POS Order", doc.pos_order, order_updates, update_modified=False)
+
+		if status == "Served":
+			order = frappe.get_cached_doc("POS Order", doc.pos_order)
+			if order.order_type == "Dine-In" and order.table_no:
+				frappe.db.set_value(
+					"Restaurant Table", order.table_no, "is_available", 1, update_modified=False
+				)
+
+	return {"status": status}

@@ -69,9 +69,9 @@ frappe.ui.form.on("Billing Invoice", {
 					__("🍳 Mark Ready"),
 					function () {
 						frappe.call({
-							method: "billing_management.billing.page.live_orders.live_orders.update_order_status",
+							method: "billing_management.billing.doctype.billing_invoice.billing_invoice.update_kitchen_status",
 							args: {
-								order_name: frm.doc.name,
+								invoice_name: frm.doc.name,
 								status: "Ready"
 							},
 							callback: function (r) {
@@ -93,9 +93,9 @@ frappe.ui.form.on("Billing Invoice", {
 					__("👨‍🍳 Send to Kitchen"),
 					function () {
 						frappe.call({
-							method: "billing_management.billing.page.live_orders.live_orders.update_order_status",
+							method: "billing_management.billing.doctype.billing_invoice.billing_invoice.update_kitchen_status",
 							args: {
-								order_name: frm.doc.name,
+								invoice_name: frm.doc.name,
 								status: "In Progress"
 							},
 							callback: function (r) {
@@ -116,9 +116,9 @@ frappe.ui.form.on("Billing Invoice", {
 				__("✅ Mark Served"),
 				function () {
 					frappe.call({
-						method: "billing_management.billing.page.live_orders.live_orders.update_order_status",
+						method: "billing_management.billing.doctype.billing_invoice.billing_invoice.update_kitchen_status",
 						args: {
-							order_name: frm.doc.name,
+							invoice_name: frm.doc.name,
 							status: "Served"
 						},
 						callback: function (r) {
@@ -162,4 +162,3 @@ function billing_invoice_update_total_amount(frm) {
 	frm.set_value("total_amount", total);
 	frm.refresh_field("total_amount");
 }
-

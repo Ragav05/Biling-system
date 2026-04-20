@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"pos-hero\",\"type\":\"header\",\"data\":{\"text\":\"<div style=\\\"background: linear-gradient(135deg, #4338ca 0%, #2563eb 48%, #0f766e 100%); padding: 32px; border-radius: 18px; color: white; box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);\\\"><div style=\\\"font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.8; margin-bottom: 8px;\\\">Restaurant Command Center</div><h2 style=\\\"margin: 0 0 10px 0; font-size: 32px; font-weight: 700;\\\">POS and Restaurant Dashboard</h2><p style=\\\"margin: 0; opacity: 0.92; font-size: 15px;\\\">Run billing, live orders, tables, kitchen, invoices, menu control, and daily kitchen production from one dashboard.</p></div>\",\"col\":12}},{\"id\":\"pos-1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Restaurant POS\",\"col\":3}},{\"id\":\"pos-2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Live Orders\",\"col\":3}},{\"id\":\"pos-3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"POS Orders\",\"col\":3}},{\"id\":\"pos-4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tables\",\"col\":3}},{\"id\":\"pos-5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen\",\"col\":3}},{\"id\":\"pos-6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen Production\",\"col\":3}},{\"id\":\"pos-7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Billing Invoices\",\"col\":3}},{\"id\":\"pos-8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Menu Items\",\"col\":3}},{\"id\":\"pos-9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger\",\"col\":3}}]",
+ "content": "[{\"id\":\"pos-hero\",\"type\":\"header\",\"data\":{\"text\":\"<div style=\\\"background: linear-gradient(135deg, #4338ca 0%, #2563eb 48%, #0f766e 100%); padding: 32px; border-radius: 18px; color: white; box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);\\\"><div style=\\\"font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.8; margin-bottom: 8px;\\\">Restaurant Command Center</div><h2 style=\\\"margin: 0 0 10px 0; font-size: 32px; font-weight: 700;\\\">POS and Restaurant Dashboard</h2><p style=\\\"margin: 0; opacity: 0.92; font-size: 15px;\\\">Run billing, live orders, tables, kitchen, invoices, menu control, and daily kitchen production from one dashboard.</p></div>\",\"col\":12}},{\"id\":\"pos-0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Analytics Dashboard\",\"col\":3}},{\"id\":\"pos-1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Restaurant POS\",\"col\":3}},{\"id\":\"pos-2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Live Orders\",\"col\":3}},{\"id\":\"pos-3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"POS Orders\",\"col\":3}},{\"id\":\"pos-4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tables\",\"col\":3}},{\"id\":\"pos-5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen\",\"col\":3}},{\"id\":\"pos-6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen Production\",\"col\":3}},{\"id\":\"pos-7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Billing Invoices\",\"col\":3}},{\"id\":\"pos-8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Menu Items\",\"col\":3}},{\"id\":\"pos-9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger\",\"col\":3}}]",
  "creation": "2026-03-28 00:00:00.000000",
  "docstatus": 0,
  "doctype": "Workspace",
@@ -14,9 +14,18 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "POS Billing (Main)",
-   "link_count": 2,
+   "link_count": 3,
    "onboard": 1,
    "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Analytics Dashboard",
+   "link_to": "billing-analytics",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
   },
   {
    "hidden": 0,
@@ -144,6 +153,13 @@
  "roles": [],
  "sequence_id": 1.0,
  "shortcuts": [
+  {
+   "color": "Pink",
+   "doc_view": "",
+   "label": "Analytics Dashboard",
+   "link_to": "billing-analytics",
+   "type": "Page"
+  },
   {
    "color": "Blue",
    "doc_view": "",
